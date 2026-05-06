@@ -915,7 +915,10 @@ function showT(name){
     document.getElementById('nav-'+t).classList.toggle('on',t===name);
   });
   document.getElementById('main').scrollTo(0,0);
-  if(name==='admin'){renderAdmin();renderMenuEdit();}
+  if(name==='admin'){
+    if(!adminLoggedIn){showAdminLogin();}
+    renderAdmin();renderMenuEdit();
+  }
 }
 
 // ===================== LANG =====================
@@ -962,7 +965,7 @@ function applyLang(){
   fillSel('d-date',getNextDinnerDays(6).map((d,i)=>[i,fmtDate(d)]),L.dDateLbl);
   fillSel('w-day',getNextDays(false,7).map((d,i)=>[i,fmtDate(d)]),L.wDayLbl);
 
-  renderBreadItems();renderBarItems();renderWashSlots();renderExpTiles();renderInfo();renderAdmin();renderMenuEdit();renderKidAges();
+  renderBreadItems();renderBarItems();renderWashSlots();renderExpTiles();renderInfo();renderMenuEdit();renderKidAges();
 }
 
 // ===================== INSTALL BANNER =====================

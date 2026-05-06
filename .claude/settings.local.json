@@ -8,7 +8,11 @@
       "Bash(git branch *)",
       "Bash(chmod +x /Users/thverburg/Documents/Claude/Projects/webapp/.git/hooks/post-commit)",
       "Bash(npm create *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(curl -s https://quintavalbom.github.io/webapp/)",
+      "Bash(curl -sI https://quintavalbom.github.io/webapp/)",
+      "Bash(git fetch *)",
+      "Bash(curl -s \"https://raw.githubusercontent.com/quintavalbom/webapp/main/index.html\")"
     ]
   }
 }

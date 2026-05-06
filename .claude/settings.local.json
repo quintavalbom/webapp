@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git remote *)",
+      "Bash(git branch *)",
+      "Bash(chmod +x /Users/thverburg/Documents/Claude/Projects/webapp/.git/hooks/post-commit)",
+      "Bash(npm create *)",
+      "Bash(npm install *)"
+    ]
+  }
+}

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quinta Valbom - Beheer</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">🔐</div>
+      <div class="header-text">
+        <h1>Beheer</h1>
+        <p id="admin-status">Inloggen...</p>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- LOGIN SCREEN -->
+      <div id="login-screen">
+        <div class="card" style="text-align: center; margin-top: 40px; max-width: 300px; margin-left: auto; margin-right: auto;">
+          <div style="font-size: 48px; margin-bottom: 20px;">🔐</div>
+          <h2 style="margin-bottom: 12px;">Beheer toegang</h2>
+          <p style="color: var(--muted); margin-bottom: 24px;">Voer de pincode in</p>
+
+          <input type="text" id="pin-input" inputmode="numeric" maxlength="6" placeholder="0000" style="text-align: center; font-size: 24px; letter-spacing: 8px; margin-bottom: 12px;" onkeydown="if(event.key==='Enter')checkPin()">
+          <button onclick="checkPin()">Inloggen</button>
+          <div id="pin-error" class="error" style="display: none;"></div>
+        </div>
+      </div>
+
+      <!-- ADMIN CONTENT -->
+      <div id="admin-content" style="display: none;">
+        <!-- BESTELLINGEN -->
+        <div class="card">
+          <h2 class="card-title">📋 Bestellingen</h2>
+          <div id="orders-list" style="max-height: 300px; overflow-y: auto;"></div>
+        </div>
+
+        <!-- PRIJZEN -->
+        <div class="card">
+          <h2 class="card-title">💰 Menu & prijzen</h2>
+
+          <h3 style="font-size: 13px; color: var(--hint); text-transform: uppercase; margin: 16px 0 8px;">Broodjes</h3>
+          <div id="bread-prices"></div>
+
+          <h3 style="font-size: 13px; color: var(--hint); text-transform: uppercase; margin: 16px 0 8px;">Bar</h3>
+          <div id="bar-prices"></div>
+        </div>
+
+        <!-- LOGOUT -->
+        <div class="card" style="text-align: center;">
+          <button class="btn-secondary" onclick="adminLogout()">Uitloggen</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
+  <script>
+    const ADMIN_PIN = '0000';
+    let adminLoggedIn = sessionStorage.getItem('qv_admin') === '1';
+    let pinAttempts = 0;
+    let pinLockedUntil = 0;
+
+    // Check if already logged in
+    if (adminLoggedIn) {
+      showAdminContent();
+      loadAdminData();
+    } else {
+      showLoginScreen();
+    }
+
+    function showLoginScreen() {
+      document.getElementById('login-screen').style.display = 'block';
+      document.getElementById('admin-content').style.display = 'none';
+      document.getElementById('admin-status').textContent = 'Inloggen...';
+    }
+
+    function showAdminContent() {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('admin-content').style.display = 'block';
+      document.getElementById('admin-status').textContent = '✓ Ingelogd';
+    }
+
+    function checkPin() {
+      const now = Date.now();
+      if (pinLockedUntil > now) {
+        const secondsLeft = Math.ceil((pinLockedUntil - now) / 1000);
+        showError('pin-error', `Te veel pogingen. Probeer over ${secondsLeft}s opnieuw.`);
+        return;
+      }
+
+      const pin = document.getElementById('pin-input').value;
+      if (pin === ADMIN_PIN) {
+        adminLoggedIn = true;
+        sessionStorage.setItem('qv_admin', '1');
+        pinAttempts = 0;
+        showAdminContent();
+        loadAdminData();
+      } else {
+        pinAttempts++;
+        if (pinAttempts >= 5) {
+          pinLockedUntil = now + 300000; // 5 minutes
+          showError('pin-error', 'Te veel pogingen. Geblokkeerd voor 5 minuten.');
+        } else {
+          showError('pin-error', `Onjuiste pincode. Nog ${5 - pinAttempts} poging${5 - pinAttempts > 1 ? 'en' : ''} over.`);
+        }
+        document.getElementById('pin-input').value = '';
+      }
+    }
+
+    async function loadAdminData() {
+      await loadOrders();
+      await loadMenuPrices();
+    }
+
+    async function loadOrders() {
+      const result = await getOrders();
+      const container = document.getElementById('orders-list');
+
+      if (!result.success) {
+        container.innerHTML = `<div class="error">Fout: ${result.error}</div>`;
+        return;
+      }
+
+      if (!result.data || result.data.length === 0) {
+        container.innerHTML = '<p style="color: var(--muted); font-size: 12px;">Nog geen bestellingen.</p>';
+        return;
+      }
+
+      container.innerHTML = '';
+      result.data.forEach(order => {
+        const row = document.createElement('div');
+        row.style.cssText = 'padding: 12px 0; border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start;';
+        row.innerHTML = `
+          <div>
+            <div style="font-weight: 600; font-size: 13px;">Plek ${order.plek} ${order.type}</div>
+            <div style="font-size: 12px; color: var(--muted); margin-top: 2px;">${order.detail}</div>
+          </div>
+          <button style="padding: 4px 10px; font-size: 11px; background: ${order.done ? 'var(--bg)' : 'var(--qvl)'}; color: ${order.done ? 'var(--hint)' : 'var(--qvt)'}; border: none; border-radius: 20px; cursor: pointer;" onclick="toggleOrderDone('${order.id}', ${!order.done})">${order.done ? 'Klaar' : 'Nieuw'}</button>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    async function toggleOrderDone(id, done) {
+      const result = await updateOrder(id, { done });
+      if (result.success) {
+        loadOrders();
+      } else {
+        showError('orders-error', result.error);
+      }
+    }
+
+    async function loadMenuPrices() {
+      const result = await getMenuItems();
+      if (!result.success) return;
+
+      const breadContainer = document.getElementById('bread-prices');
+      const barContainer = document.getElementById('bar-prices');
+      breadContainer.innerHTML = '';
+      barContainer.innerHTML = '';
+
+      result.data.forEach(item => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 0.5px solid var(--border);';
+
+        const nameMap = {
+          'b1': 'Wit broodje',
+          'b2': 'Bruin broodje',
+          'b3': 'Groot zuurdesembrood',
+          'b4': 'Pastel de nata',
+          'w1': 'Lokale wijn wit',
+          'w2': 'Lokale wijn rosé',
+          'w3': 'Lokale wijn rood',
+          'w4': 'Super Bock',
+          'w5': 'Speciaal bier',
+          'w6': 'Frisdrank',
+          'w7': 'IJsje'
+        };
+
+        row.innerHTML = `
+          <span style="font-size: 13px;">${nameMap[item.id] || item.id}</span>
+          <input type="number" step="0.10" min="0" value="${item.price.toFixed(2)}" style="width: 70px; padding: 4px; margin-bottom: 0;" onchange="updatePrice('${item.id}', this.value)">
+        `;
+
+        if (item.category === 'bread') {
+          breadContainer.appendChild(row);
+        } else {
+          barContainer.appendChild(row);
+        }
+      });
+    }
+
+    async function updatePrice(id, price) {
+      const result = await updateMenuPrice(id, parseFloat(price) || 0);
+      if (result.success) {
+        showToast('Prijs opgeslagen');
+      } else {
+        showError('price-error', result.error);
+      }
+    }
+
+    function adminLogout() {
+      adminLoggedIn = false;
+      sessionStorage.removeItem('qv_admin');
+      document.getElementById('pin-input').value = '';
+      showLoginScreen();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      if (!el) {
+        const newEl = document.createElement('div');
+        newEl.id = id;
+        newEl.className = 'error';
+        newEl.textContent = msg;
+        newEl.style.marginBottom = '12px';
+        document.getElementById('main').insertBefore(newEl, document.getElementById('main').firstChild);
+        setTimeout(() => newEl.remove(), 3500);
+      } else {
+        el.textContent = msg;
+        el.style.display = 'block';
+        setTimeout(() => { el.style.display = 'none'; }, 3500);
+      }
+    }
+  </script>
+</body>
+</html>

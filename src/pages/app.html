@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Quinta Valbom - App</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">🏕️</div>
+      <div class="header-text">
+        <h1>Quinta Valbom</h1>
+        <p id="user-info">Plek —</p>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- BROODJES -->
+      <section id="section-bread" class="section active">
+        <div class="card">
+          <h2 class="card-title">🥖 Broodjes bestellen</h2>
+          <p style="color: var(--muted); font-size: 12px; margin-bottom: 12px;">Afhalen 8:30–11:30</p>
+          <label>Afhaaldag</label>
+          <select id="bread-day"></select>
+          <div id="bread-items"></div>
+          <div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 0.5px solid var(--border); margin-top: 12px;">
+            <span>Totaal</span>
+            <span id="bread-total" style="font-weight: 600; font-size: 18px;">€ 0,00</span>
+          </div>
+          <button onclick="placeBreadOrder()">Bestelling plaatsen</button>
+          <div id="bread-error" class="error" style="display: none;"></div>
+        </div>
+      </section>
+
+      <!-- DINER -->
+      <section id="section-dinner" class="section">
+        <div class="card">
+          <h2 class="card-title">🍽️ Dinner night</h2>
+          <p style="color: var(--muted); font-size: 12px; margin-bottom: 12px;">Dinsdag & vrijdag · 19:00</p>
+          <label>Datum</label>
+          <select id="dinner-date"></select>
+          <div class="grid-2">
+            <div>
+              <label>Volwassenen</label>
+              <input type="number" id="dinner-adults" min="1" max="20" value="2">
+            </div>
+            <div>
+              <label>Kinderen</label>
+              <input type="number" id="dinner-kids" min="0" max="10" value="0">
+            </div>
+          </div>
+          <label>Dieetwensen</label>
+          <div style="margin-bottom: 12px;">
+            <label style="display: flex; align-items: center; margin-bottom: 8px; font-weight: 400;">
+              <input type="checkbox" id="dinner-veg" style="width: auto; margin-right: 8px;">
+              Vegetarisch
+            </label>
+            <label style="display: flex; align-items: center; margin-bottom: 8px; font-weight: 400;">
+              <input type="checkbox" id="dinner-gluten" style="width: auto; margin-right: 8px;">
+              Glutenvrij
+            </label>
+          </div>
+          <textarea id="dinner-note" placeholder="Opmerkingen..." style="min-height: 60px;"></textarea>
+          <button onclick="placeDinnerOrder()">Reservering bevestigen</button>
+          <div id="dinner-error" class="error" style="display: none;"></div>
+        </div>
+      </section>
+
+      <!-- WASSEN -->
+      <section id="section-wash" class="section">
+        <div class="card">
+          <h2 class="card-title">🧺 Wasmachine</h2>
+          <p style="color: var(--muted); font-size: 12px; margin-bottom: 12px;">€ 6,00 incl. eco waspod</p>
+          <label>Dag</label>
+          <select id="wash-day" onchange="loadWashSlots()"></select>
+          <label>Tijdslot</label>
+          <div id="wash-slots" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;"></div>
+          <button onclick="placeWashOrder()">Slot reserveren</button>
+          <div id="wash-error" class="error" style="display: none;"></div>
+        </div>
+      </section>
+
+      <!-- BAR -->
+      <section id="section-bar" class="section">
+        <div class="card">
+          <h2 class="card-title">🍷 Bar bestelling</h2>
+          <p style="color: var(--muted); font-size: 12px; margin-bottom: 12px;">Open 15:00–19:00 · alleen contant</p>
+          <div id="bar-items"></div>
+          <div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 0.5px solid var(--border); margin-top: 12px;">
+            <span>Totaal</span>
+            <span id="bar-total" style="font-weight: 600; font-size: 18px;">€ 0,00</span>
+          </div>
+          <textarea id="bar-note" placeholder="Opmerking..." style="min-height: 60px; margin-top: 12px;"></textarea>
+          <button onclick="placeBarOrder()">Bestelling plaatsen</button>
+          <div id="bar-error" class="error" style="display: none;"></div>
+        </div>
+      </section>
+
+      <!-- UITSTAPJES -->
+      <section id="section-trips" class="section">
+        <div class="card">
+          <h2 class="card-title">🗺️ Uitstapjes & ervaringen</h2>
+          <label>Keuze</label>
+          <select id="trips-choice">
+            <option value="">-- Selecteer --</option>
+            <option value="0">Wijnproeverij (Santa Cristina / Villa Seara)</option>
+            <option value="1">Jeep Experience</option>
+            <option value="2">Fietsverhuur Eco-pista</option>
+          </select>
+          <div class="grid-2">
+            <div>
+              <label>Personen</label>
+              <input type="number" id="trips-persons" min="1" max="20" value="2">
+            </div>
+            <div>
+              <label>Datum</label>
+              <input type="date" id="trips-date">
+            </div>
+          </div>
+          <textarea id="trips-note" placeholder="Vraag of opmerking..."></textarea>
+          <button onclick="placeTripsRequest()">Verzoek insturen</button>
+          <div id="trips-error" class="error" style="display: none;"></div>
+        </div>
+      </section>
+
+      <!-- INFO -->
+      <section id="section-info" class="section">
+        <div class="card">
+          <h2 class="card-title">ℹ️ Informatie</h2>
+          <div class="info-block">
+            <h4>📶 Wifi</h4>
+            <p>Netwerk: <strong>QuintaValbom</strong><br>Wachtwoord: <strong>HappyHolidays!</strong></p>
+          </div>
+          <div class="info-block">
+            <h4>🕐 Openingstijden</h4>
+            <p>Bar ochtend: 8:30–11:30<br>Bar middag: 15:00–19:00<br>Pauze 12:00–15:00</p>
+          </div>
+          <div class="info-block">
+            <h4>📞 Contact</h4>
+            <p>Moniek & Thomas: <strong>+351 910 348 399</strong><br>motho@quintavalbom.nl</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav>
+      <button class="nav-btn active" onclick="switchTab('bread')">🥖 Broodjes</button>
+      <button class="nav-btn" onclick="switchTab('dinner')">🍽️ Diner</button>
+      <button class="nav-btn" onclick="switchTab('wash')">🧺 Wassen</button>
+      <button class="nav-btn" onclick="switchTab('bar')">🍷 Bar</button>
+      <button class="nav-btn" onclick="switchTab('trips')">🗺️ Trips</button>
+      <button class="nav-btn" onclick="switchTab('info')">ℹ️ Info</button>
+      <button class="nav-btn" onclick="switchTab('admin')">⚙️ Beheer</button>
+    </nav>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
+  <script>
+    // User data
+    let user = JSON.parse(localStorage.getItem('qv_user')) || { name: 'Gast', plek: 1 };
+    let currentTab = 'bread';
+    let breadQty = {};
+    let barQty = {};
+    let selectedWashSlot = null;
+    let menuData = {};
+
+    document.getElementById('user-info').textContent = `Plek ${user.plek} · ${user.name}`;
+
+    // Initialize
+    async function init() {
+      await loadMenu();
+      setupDates();
+      await loadWashDays();
+    }
+
+    async function loadMenu() {
+      const result = await getMenuItems();
+      if (result.success) {
+        menuData = {};
+        result.data.forEach(item => {
+          menuData[item.id] = { name: item.id, price: item.price, category: item.category };
+        });
+        renderBreadItems();
+        renderBarItems();
+      }
+    }
+
+    function setupDates() {
+      // Bread days (next 6 days, no Sunday)
+      const breadDaySelect = document.getElementById('bread-day');
+      const today = new Date();
+      let count = 0;
+      for (let i = 1; count < 6; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() + i);
+        if (d.getDay() !== 0) {
+          const option = document.createElement('option');
+          option.value = d.toISOString().split('T')[0];
+          option.textContent = d.toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' });
+          breadDaySelect.appendChild(option);
+          count++;
+        }
+      }
+
+      // Dinner dates (Tue & Fri)
+      const dinnerSelect = document.getElementById('dinner-date');
+      count = 0;
+      for (let i = 1; count < 6; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() + i);
+        if (d.getDay() === 2 || d.getDay() === 5) {
+          const option = document.createElement('option');
+          option.value = d.toISOString().split('T')[0];
+          option.textContent = d.toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' });
+          dinnerSelect.appendChild(option);
+          count++;
+        }
+      }
+
+      // Wash days (next 7 days)
+      const washSelect = document.getElementById('wash-day');
+      for (let i = 1; i <= 7; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() + i);
+        const option = document.createElement('option');
+        option.value = d.toISOString().split('T')[0];
+        option.textContent = d.toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' });
+        washSelect.appendChild(option);
+      }
+      if (washSelect.options.length > 1) washSelect.value = washSelect.options[1].value;
+    }
+
+    async function loadWashDays() {
+      const washSelect = document.getElementById('wash-day');
+      if (washSelect.value) {
+        await loadWashSlots();
+      }
+    }
+
+    async function loadWashSlots() {
+      const date = document.getElementById('wash-day').value;
+      const result = await getWashBookings(date);
+      const slots = [
+        { id: 's1', time: '09:00–11:00' },
+        { id: 's2', time: '11:00–13:00' },
+        { id: 's3', time: '16:00–18:00' }
+      ];
+
+      const booked = new Set((result.data || []).map(b => b.slot_id));
+      const slotsDiv = document.getElementById('wash-slots');
+      slotsDiv.innerHTML = '';
+
+      slots.forEach(slot => {
+        const btn = document.createElement('div');
+        btn.style.cssText = 'border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; font-size: 12px;';
+        btn.textContent = slot.time + '\n' + (booked.has(slot.id) ? '❌ Bezet' : '✓ Vrij');
+        if (booked.has(slot.id)) {
+          btn.style.background = 'var(--bg)';
+          btn.style.cursor = 'default';
+          btn.style.color = 'var(--hint)';
+        } else {
+          btn.onclick = () => {
+            document.querySelectorAll('#wash-slots > div').forEach(b => b.style.background = '');
+            btn.style.background = 'var(--qvl)';
+            selectedWashSlot = slot.id;
+          };
+        }
+        slotsDiv.appendChild(btn);
+      });
+    }
+
+    function renderBreadItems() {
+      const container = document.getElementById('bread-items');
+      container.innerHTML = '';
+      const breadItems = [
+        { id: 'b1', name: 'Wit broodje', price: 0.50 },
+        { id: 'b2', name: 'Bruin broodje', price: 0.50 },
+        { id: 'b3', name: 'Groot zuurdesembrood', price: 4.00 },
+        { id: 'b4', name: 'Pastel de nata', price: 2.50 }
+      ];
+
+      breadItems.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'q-row';
+        const price = menuData[item.id]?.price || item.price;
+        row.innerHTML = `
+          <div>${item.name}</div>
+          <div class="q-ctrl">
+            <span style="color: var(--muted); font-size: 12px;">€ ${price.toFixed(2)}</span>
+            <button class="q-btn" onclick="changeBreadQty('${item.id}', -1)">−</button>
+            <span class="q-num">${breadQty[item.id] || 0}</span>
+            <button class="q-btn" onclick="changeBreadQty('${item.id}', 1)">+</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+      updateBreadTotal();
+    }
+
+    function renderBarItems() {
+      const container = document.getElementById('bar-items');
+      container.innerHTML = '';
+      const barItems = [
+        { id: 'w1', name: 'Lokale wijn wit', price: 8.00 },
+        { id: 'w2', name: 'Lokale wijn rosé', price: 8.00 },
+        { id: 'w3', name: 'Lokale wijn rood', price: 8.00 },
+        { id: 'w4', name: 'Super Bock', price: 2.50 },
+        { id: 'w5', name: 'Speciaal bier', price: 3.50 },
+        { id: 'w6', name: 'Frisdrank', price: 2.00 },
+        { id: 'w7', name: 'IJsje', price: 2.50 }
+      ];
+
+      barItems.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'q-row';
+        const price = menuData[item.id]?.price || item.price;
+        row.innerHTML = `
+          <div>${item.name}</div>
+          <div class="q-ctrl">
+            <span style="color: var(--muted); font-size: 12px;">€ ${price.toFixed(2)}</span>
+            <button class="q-btn" onclick="changeBarQty('${item.id}', -1)">−</button>
+            <span class="q-num">${barQty[item.id] || 0}</span>
+            <button class="q-btn" onclick="changeBarQty('${item.id}', 1)">+</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+      updateBarTotal();
+    }
+
+    function changeBreadQty(id, delta) {
+      breadQty[id] = Math.max(0, (breadQty[id] || 0) + delta);
+      renderBreadItems();
+    }
+
+    function changeBarQty(id, delta) {
+      barQty[id] = Math.max(0, (barQty[id] || 0) + delta);
+      renderBarItems();
+    }
+
+    function updateBreadTotal() {
+      let total = 0;
+      Object.keys(breadQty).forEach(id => {
+        const breadItems = [
+          { id: 'b1', price: 0.50 },
+          { id: 'b2', price: 0.50 },
+          { id: 'b3', price: 4.00 },
+          { id: 'b4', price: 2.50 }
+        ];
+        const item = breadItems.find(i => i.id === id);
+        if (item) {
+          const price = menuData[id]?.price || item.price;
+          total += (breadQty[id] || 0) * price;
+        }
+      });
+      document.getElementById('bread-total').textContent = '€ ' + total.toFixed(2);
+    }
+
+    function updateBarTotal() {
+      let total = 0;
+      Object.keys(barQty).forEach(id => {
+        const barItems = [
+          { id: 'w1', price: 8.00 },
+          { id: 'w2', price: 8.00 },
+          { id: 'w3', price: 8.00 },
+          { id: 'w4', price: 2.50 },
+          { id: 'w5', price: 3.50 },
+          { id: 'w6', price: 2.00 },
+          { id: 'w7', price: 2.50 }
+        ];
+        const item = barItems.find(i => i.id === id);
+        if (item) {
+          const price = menuData[id]?.price || item.price;
+          total += (barQty[id] || 0) * price;
+        }
+      });
+      document.getElementById('bar-total').textContent = '€ ' + total.toFixed(2);
+    }
+
+    async function placeBreadOrder() {
+      const items = Object.keys(breadQty).filter(k => breadQty[k] > 0);
+      if (!items.length) {
+        showError('bread-error', 'Voeg minstens één item toe');
+        return;
+      }
+
+      const detail = items.map(id => {
+        const breadItems = [
+          { id: 'b1', name: 'Wit broodje' },
+          { id: 'b2', name: 'Bruin broodje' },
+          { id: 'b3', name: 'Groot zuurdesembrood' },
+          { id: 'b4', name: 'Pastel de nata' }
+        ];
+        const item = breadItems.find(i => i.id === id);
+        return `${breadQty[id]}× ${item?.name}`;
+      }).join(', ');
+
+      const result = await saveOrder({
+        plek: user.plek,
+        type: '🥖',
+        detail,
+        done: false
+      });
+
+      if (result.success) {
+        showToast('Bestelling geplaatst! 🎉');
+        breadQty = {};
+        renderBreadItems();
+      } else {
+        showError('bread-error', result.error);
+      }
+    }
+
+    async function placeDinnerOrder() {
+      const result = await saveOrder({
+        plek: user.plek,
+        type: '🍽️',
+        detail: `Dinner · ${document.getElementById('dinner-adults').value}v + ${document.getElementById('dinner-kids').value}k`,
+        done: false
+      });
+
+      if (result.success) {
+        showToast('Reservering bevestigd! 🎉');
+      } else {
+        showError('dinner-error', result.error);
+      }
+    }
+
+    async function placeWashOrder() {
+      if (!selectedWashSlot) {
+        showError('wash-error', 'Selecteer een tijdslot');
+        return;
+      }
+
+      const result = await saveWashBooking({
+        date: document.getElementById('wash-day').value,
+        slot_id: selectedWashSlot,
+        plek: user.plek
+      });
+
+      if (result.success) {
+        showToast('Slot gereserveerd! 🎉');
+        selectedWashSlot = null;
+        await loadWashSlots();
+      } else {
+        showError('wash-error', result.error);
+      }
+    }
+
+    async function placeBarOrder() {
+      const items = Object.keys(barQty).filter(k => barQty[k] > 0);
+      if (!items.length) {
+        showError('bar-error', 'Voeg minstens één item toe');
+        return;
+      }
+
+      const detail = items.map(id => {
+        const barItems = [
+          { id: 'w1', name: 'Lokale wijn wit' },
+          { id: 'w2', name: 'Lokale wijn rosé' },
+          { id: 'w3', name: 'Lokale wijn rood' },
+          { id: 'w4', name: 'Super Bock' },
+          { id: 'w5', name: 'Speciaal bier' },
+          { id: 'w6', name: 'Frisdrank' },
+          { id: 'w7', name: 'IJsje' }
+        ];
+        const item = barItems.find(i => i.id === id);
+        return `${barQty[id]}× ${item?.name}`;
+      }).join(', ');
+
+      const result = await saveOrder({
+        plek: user.plek,
+        type: '🍷',
+        detail,
+        done: false
+      });
+
+      if (result.success) {
+        showToast('Bestelling geplaatst! 🎉');
+        barQty = {};
+        renderBarItems();
+      } else {
+        showError('bar-error', result.error);
+      }
+    }
+
+    async function placeTripsRequest() {
+      const choice = document.getElementById('trips-choice').value;
+      if (!choice) {
+        showError('trips-error', 'Selecteer een optie');
+        return;
+      }
+
+      const options = ['Wijnproeverij', 'Jeep Experience', 'Fietsverhuur'];
+      const result = await saveOrder({
+        plek: user.plek,
+        type: '🗺️',
+        detail: `${options[choice]} · ${document.getElementById('trips-persons').value}p`,
+        done: false
+      });
+
+      if (result.success) {
+        showToast('Verzoek verzonden! 🎉');
+      } else {
+        showError('trips-error', result.error);
+      }
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(`section-${tab}`).classList.add('active');
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      if (tab === 'admin') {
+        window.location.href = './admin.html';
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 3500);
+    }
+
+    init();
+  </script>
+</body>
+</html>

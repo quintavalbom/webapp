@@ -334,7 +334,7 @@
         { id: 'w4', name: 'Super Bock', price: 2.50 },
         { id: 'w5', name: 'Speciaal bier', price: 3.50 },
         { id: 'w6', name: 'Frisdrank', price: 2.00 },
-        { id: 'w7', name: 'IJsje', price: 2.50 }
+        { id: 'w7', name: 'Super Bock 0.0', price: 3.50 }
       ];
 
       barItems.forEach(item => {
@@ -393,7 +393,7 @@
           { id: 'w4', price: 2.50 },
           { id: 'w5', price: 3.50 },
           { id: 'w6', price: 2.00 },
-          { id: 'w7', price: 2.50 }
+          { id: 'w7', price: 3.50 }
         ];
         const item = barItems.find(i => i.id === id);
         if (item) {
@@ -489,7 +489,7 @@
           { id: 'w4', name: 'Super Bock' },
           { id: 'w5', name: 'Speciaal bier' },
           { id: 'w6', name: 'Frisdrank' },
-          { id: 'w7', name: 'IJsje' }
+          { id: 'w7', name: 'Super Bock 0.0' }
         ];
         const item = barItems.find(i => i.id === id);
         return `${barQty[id]}× ${item?.name}`;

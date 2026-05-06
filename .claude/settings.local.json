@@ -14,7 +14,9 @@
       "Bash(git fetch *)",
       "Bash(curl -s \"https://raw.githubusercontent.com/quintavalbom/webapp/main/index.html\")",
       "Bash(curl -s \"https://raw.githubusercontent.com/quintavalbom/webapp/main/src/pages/admin.html\")",
-      "Bash(curl -s \"https://api.github.com/repos/quintavalbom/webapp/actions/runs?per_page=3\")"
+      "Bash(curl -s \"https://api.github.com/repos/quintavalbom/webapp/actions/runs?per_page=3\")",
+      "Bash(git hash-object *)",
+      "Bash(md5 src/img/logo.png)"
     ]
   }
 }

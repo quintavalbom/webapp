@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Quinta Valbom">
+<meta name="theme-color" content="#00BAC5">
+<meta name="description" content="Quinta Valbom — Happy Healthy Holidays">
+<title>Quinta Valbom</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --qv:#00BAC5;--qvd:#008a95;--qvl:#e0f7f9;--qvt:#004d52;--qvll:#f0fbfc;
+  --bg:#f4f4f2;--card:#ffffff;--border:#e2e2de;--border2:#d0d0cc;
+  --text:#1c1c1a;--muted:#686865;--hint:#a8a8a4;
+  --nav:62px;--hdr:56px;
+  --sab:env(safe-area-inset-bottom,0px);
+  --sat:env(safe-area-inset-top,0px);
+}
+html{height:100%;-webkit-text-size-adjust:100%}
+body{
+  height:100%;background:var(--bg);
+  font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
+  color:var(--text);overflow:hidden;
+}
+
+/* LAYOUT */
+#app{display:flex;flex-direction:column;height:100%;height:100dvh}
+#header{
+  background:var(--qv);flex-shrink:0;
+  padding:calc(var(--sat) + 10px) 16px 10px;
+  display:flex;align-items:center;gap:10px;min-height:calc(var(--hdr) + var(--sat));
+}
+#main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px}
+#nav{
+  flex-shrink:0;background:var(--card);
+  border-top:0.5px solid var(--border);
+  padding-bottom:var(--sab);
+  display:flex;
+}
+
+/* HEADER */
+.h-logo{width:36px;height:36px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.h-logo svg{width:22px;height:22px}
+.h-text{flex:1;min-width:0}
+.h-name{color:#fff;font-size:15px;font-weight:600;letter-spacing:-0.2px}
+.h-sub{color:rgba(255,255,255,0.78);font-size:11px;margin-top:1px}
+.lang-row{display:flex;gap:4px;margin-left:auto}
+.lb{background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:500;cursor:pointer;-webkit-appearance:none}
+.lb.on{background:#fff;color:var(--qvt)}
+
+/* BOTTOM NAV */
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 6px;background:none;border:none;cursor:pointer;color:var(--hint);gap:3px;min-width:0}
+.nav-btn.on{color:var(--qv)}
+.nav-btn svg{width:22px;height:22px;flex-shrink:0}
+.nav-lbl{font-size:9px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:56px;text-align:center}
+
+/* SECTIONS */
+.sec{display:none;padding:12px 14px}.sec.on{display:block}
+
+/* CARDS */
+.card{background:var(--card);border-radius:14px;border:0.5px solid var(--border);padding:14px 15px;margin-bottom:12px}
+.card-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:3px}
+.card-sub{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.5}
+
+/* FORM ELEMENTS */
+label.lbl{font-size:12px;color:var(--muted);display:block;margin-bottom:5px}
+select,input[type=number],input[type=date],textarea{
+  width:100%;padding:11px 12px;border:1px solid var(--border2);border-radius:10px;
+  font-size:14px;background:var(--card);color:var(--text);
+  -webkit-appearance:none;appearance:none;margin-bottom:10px;
+  font-family:inherit;outline:none;
+}
+select:focus,input:focus,textarea:focus{border-color:var(--qv);box-shadow:0 0 0 3px rgba(0,186,197,0.12)}
+textarea{resize:none;line-height:1.5}
+input[type=number]{width:90px}
+
+/* CHECKBOX */
+.chk-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.chk-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--qv);flex-shrink:0;margin-bottom:0}
+.chk-row label{font-size:14px;color:var(--text)}
+
+/* QUANTITY ROWS */
+.q-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:0.5px solid var(--border)}
+.q-row:last-of-type{border-bottom:none}
+.q-name{font-size:14px;color:var(--text);flex:1}
+.q-price{font-size:13px;color:var(--muted);margin-right:10px}
+.q-ctrl{display:flex;align-items:center;gap:10px}
+.q-btn{width:32px;height:32px;border:1.5px solid var(--border2);border-radius:50%;background:none;font-size:18px;color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.q-btn:active{background:var(--bg)}
+.q-num{font-size:14px;font-weight:600;min-width:16px;text-align:center;color:var(--text)}
+
+/* TOTAL BAR */
+.tot-bar{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-top:0.5px solid var(--border);margin-top:4px}
+.tot-lbl{font-size:13px;color:var(--muted)}
+.tot-amt{font-size:18px;font-weight:700;color:var(--text)}
+
+/* SUBMIT BUTTON */
+.sub-btn{
+  width:100%;padding:14px;background:var(--qv);color:#fff;border:none;
+  border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;
+  margin-top:6px;-webkit-appearance:none;font-family:inherit;
+}
+.sub-btn:active{background:var(--qvd)}
+
+/* TIME SLOTS */
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 14px}
+.slot{border:1.5px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center;font-size:12px;cursor:pointer;color:var(--muted);line-height:1.4}
+.slot.taken{background:var(--bg);color:var(--hint);cursor:default;text-decoration:line-through}
+.slot.on{background:var(--qvl);color:var(--qvt);border-color:var(--qv);font-weight:600}
+.slot-time{font-size:13px;font-weight:500;display:block}
+.slot-lbl{font-size:10px;margin-top:2px;display:block}
+
+/* INFO BLOCKS */
+.info-blk{display:flex;gap:12px;padding:11px 0;border-bottom:0.5px solid var(--border)}
+.info-blk:last-child{border-bottom:none}
+.info-ico{width:34px;height:34px;background:var(--qvl);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.info-txt h4{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.info-txt p{font-size:12px;color:var(--muted);line-height:1.55}
+
+/* EXP TILES */
+.exp-tile{border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px}
+.exp-tile h4{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.exp-tile p{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* TIPS */
+.tip-item{padding:8px 0;border-bottom:0.5px solid var(--border);font-size:12px;color:var(--muted);line-height:1.5}
+.tip-item:last-child{border-bottom:none}
+.tip-n{font-weight:600;color:var(--qvt);margin-right:4px}
+
+/* RESTAURANTS */
+.rest-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.rest-card{background:var(--bg);border-radius:8px;padding:9px 10px}
+.rest-card h5{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px}
+.rest-card p{font-size:11px;color:var(--muted);line-height:1.5}
+
+/* ADMIN */
+.adm-row{padding:10px 0;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.adm-row:last-child{border-bottom:none}
+.adm-plek{font-size:13px;font-weight:600;color:var(--text)}
+.adm-detail{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4}
+.adm-badge{font-size:11px;padding:4px 10px;border-radius:20px;cursor:pointer;white-space:nowrap;flex-shrink:0;font-weight:500}
+.adm-new{background:var(--qvl);color:var(--qvt)}
+.adm-done{background:var(--bg);color:var(--hint)}
+
+/* MENU EDIT */
+.me-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border)}
+.me-row:last-child{border-bottom:none}
+.me-row span{font-size:13px;color:var(--text)}
+.me-inp{width:72px;padding:6px 8px;border:1px solid var(--border2);border-radius:8px;font-size:13px;background:var(--card);color:var(--text);text-align:right;margin-bottom:0}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:calc(var(--nav) + var(--sab) + 12px);left:50%;transform:translateX(-50%);
+  background:var(--qvt);color:#fff;padding:10px 20px;border-radius:20px;
+  font-size:13px;font-weight:500;white-space:nowrap;z-index:999;
+  opacity:0;pointer-events:none;transition:opacity 0.2s;
+}
+.toast.show{opacity:1}
+
+/* NOTICE */
+.notice{background:var(--qvll);border:1px solid var(--qv);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--qvt);line-height:1.5;margin-bottom:12px}
+
+/* ERR */
+.err{font-size:12px;color:#c0392b;margin-top:6px;display:none}
+
+/* SECTION TOP */
+.sec-head{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.sec-head-ico{width:36px;height:36px;background:var(--qvl);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.sec-head-title{font-size:17px;font-weight:700;color:var(--text)}
+.sec-head-sub{font-size:12px;color:var(--muted);margin-top:1px}
+
+.staff-badge{display:inline-block;background:#fde8e4;color:#a93226;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;margin-left:6px}
+
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row2 input{width:100%}
+
+.divlbl{font-size:11px;font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px}
+
+/* INSTALL BANNER */
+#install-banner{
+  background:var(--qvl);border-bottom:1px solid rgba(0,186,197,0.3);
+  padding:10px 16px;display:flex;align-items:center;justify-content:space-between;
+  font-size:12px;color:var(--qvt);gap:10px;flex-shrink:0;
+}
+#install-banner button{background:var(--qv);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:500;cursor:pointer}
+#install-banner .close-x{background:none;border:none;color:var(--muted);font-size:18px;padding:0;cursor:pointer;line-height:1}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HEADER -->
+<div id="header">
+  <div class="h-logo">
+    <svg viewBox="0 0 28 28" fill="none">
+      <circle cx="14" cy="14" r="13" fill="#e0f7f9"/>
+      <path d="M14 5L7 21L14 17.5L21 21Z" fill="#00BAC5"/>
+      <circle cx="14" cy="11" r="2.5" fill="#004d52"/>
+    </svg>
+  </div>
+  <div class="h-text">
+    <div class="h-name">Quinta Valbom</div>
+    <div class="h-sub" id="h-sub">Happy Healthy Holidays</div>
+  </div>
+  <div class="lang-row">
+    <button class="lb on" onclick="setL('nl')">NL</button>
+    <button class="lb" onclick="setL('en')">EN</button>
+    <button class="lb" onclick="setL('pt')">PT</button>
+  </div>
+</div>
+
+<!-- INSTALL BANNER (iOS) -->
+<div id="install-banner" style="display:none">
+  <span id="ib-txt">Zet op beginscherm: tik <strong>Delen</strong> → <strong>Zet op beginscherm</strong></span>
+  <button onclick="document.getElementById('install-banner').style.display='none'" class="close-x">×</button>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main">
+
+  <!-- BROODJES -->
+  <div class="sec on" id="sec-bread">
+    <div class="sec-head"><div class="sec-head-ico">🥖</div><div><div class="sec-head-title" id="b-title">Broodjes bestellen</div><div class="sec-head-sub" id="b-sub">Afhalen 8:30–11:30 · niet op zondag</div></div></div>
+    <div class="card">
+      <div class="notice" id="b-notice">Bestel voor 20:00 voor de volgende ochtend. Afhalen bij de bar.</div>
+      <label class="lbl" id="b-daylbl">Afhaaldag</label>
+      <select id="b-day"></select>
+      <div id="bread-items"></div>
+      <div class="tot-bar"><span class="tot-lbl" id="b-totlbl">Totaal</span><span class="tot-amt" id="b-tot">€ 0,00</span></div>
+      <label class="lbl" id="b-plklbl">Plekkenummer</label>
+      <select id="b-plek"></select>
+      <button class="sub-btn" id="b-btn" onclick="doOrder('bread')">Bestelling plaatsen</button>
+      <div class="err" id="b-err"></div>
+    </div>
+  </div>
+
+  <!-- DINER -->
+  <div class="sec" id="sec-dinner">
+    <div class="sec-head"><div class="sec-head-ico">🍽️</div><div><div class="sec-head-title" id="d-title">Dinner night</div><div class="sec-head-sub" id="d-sub">Dinsdag & vrijdag · 19:00 · max. 20 personen</div></div></div>
+    <div class="card">
+      <div class="notice" id="d-notice">Gezamenlijk eten, vast menu. Reserveer op tijd — vol = vol.</div>
+      <label class="lbl" id="d-datelbl">Datum</label>
+      <select id="d-date"></select>
+      <div class="row2">
+        <div><label class="lbl" id="d-adultlbl">Volwassenen</label><input type="number" min="1" max="20" value="2" id="d-adults"></div>
+        <div><label class="lbl" id="d-kidlbl">Kinderen</label><input type="number" min="0" max="10" value="0" id="d-kids" oninput="renderKidAges()"></div>
+      </div>
+      <div id="kid-ages-wrap"></div>
+      <label class="lbl" id="d-dietlbl">Dieetwensen / allergieën</label>
+      <div class="chk-row"><input type="checkbox" id="d-veg"><label for="d-veg" id="d-veglbl">Vegetarisch</label></div>
+      <div class="chk-row"><input type="checkbox" id="d-gluten"><label for="d-gluten" id="d-glutenlbl">Glutenvrij</label></div>
+      <div class="chk-row"><input type="checkbox" id="d-lactose"><label for="d-lactose" id="d-lactoselbl">Lactosevrij</label></div>
+      <textarea id="d-note" rows="2" placeholder="Overige allergieën of wensen..."></textarea>
+      <label class="lbl" id="d-plklbl">Plekkenummer</label>
+      <select id="d-plek"></select>
+      <button class="sub-btn" id="d-btn" onclick="doOrder('dinner')">Reservering bevestigen</button>
+      <div class="err" id="d-err"></div>
+    </div>
+  </div>
+
+  <!-- WASSEN -->
+  <div class="sec" id="sec-wash">
+    <div class="sec-head"><div class="sec-head-ico">🧺</div><div><div class="sec-head-title" id="w-title">Wasmachine</div><div class="sec-head-sub" id="w-sub">€ 6,00 incl. eco waspod</div></div></div>
+    <div class="card">
+      <div class="notice" id="w-notice">Sleutel ophalen én terugbrengen bij de bar binnen uw tijdslot.</div>
+      <label class="lbl" id="w-daylbl">Dag</label>
+      <select id="w-day" onchange="selWash=null;renderWashSlots()"></select>
+      <label class="lbl" id="w-slotlbl">Tijdslot</label>
+      <div class="slots" id="wash-slots"></div>
+      <label class="lbl" id="w-plklbl">Plekkenummer</label>
+      <select id="w-plek"></select>
+      <button class="sub-btn" id="w-btn" onclick="doOrder('wash')">Slot reserveren — € 6,00</button>
+      <div class="err" id="w-err"></div>
+    </div>
+  </div>
+
+  <!-- BAR -->
+  <div class="sec" id="sec-bar">
+    <div class="sec-head"><div class="sec-head-ico">🍷</div><div><div class="sec-head-title" id="bar-title">Bar bestelling</div><div class="sec-head-sub" id="bar-sub">Open 15:00–19:00 · alleen contant</div></div></div>
+    <div class="card">
+      <div class="notice" id="bar-notice">Wij brengen uw bestelling naar uw plek.</div>
+      <div id="bar-items"></div>
+      <div class="tot-bar"><span class="tot-lbl" id="bar-totlbl">Totaal</span><span class="tot-amt" id="bar-tot">€ 0,00</span></div>
+      <textarea id="bar-note" rows="2" placeholder="Opmerking..." style="margin-top:10px"></textarea>
+      <label class="lbl" id="bar-plklbl">Plekkenummer</label>
+      <select id="bar-plek"></select>
+      <button class="sub-btn" id="bar-btn" onclick="doOrder('bar')">Bestelling plaatsen</button>
+      <div class="err" id="bar-err"></div>
+    </div>
+  </div>
+
+  <!-- UITSTAPJES -->
+  <div class="sec" id="sec-exp">
+    <div class="sec-head"><div class="sec-head-ico">🗺️</div><div><div class="sec-head-title" id="exp-title">Uitstapjes</div><div class="sec-head-sub" id="exp-sub">Reservering of informatieverzoek</div></div></div>
+    <div id="exp-tiles"></div>
+    <div class="card">
+      <label class="lbl" id="exp-chslbl">Keuze</label>
+      <select id="exp-choice"></select>
+      <div class="row2">
+        <div><label class="lbl" id="exp-perslbl">Personen</label><input type="number" min="1" max="20" value="2" id="exp-pers"></div>
+        <div><label class="lbl" id="exp-datelbl">Datum</label><input type="date" id="exp-date" style="width:100%"></div>
+      </div>
+      <label class="lbl" id="exp-notelbl">Vraag of opmerking</label>
+      <textarea id="exp-note" rows="2"></textarea>
+      <label class="lbl" id="exp-plklbl">Plekkenummer</label>
+      <select id="exp-plek"></select>
+      <button class="sub-btn" id="exp-btn" onclick="doOrder('exp')">Verzoek insturen</button>
+      <div class="err" id="exp-err"></div>
+    </div>
+  </div>
+
+  <!-- INFO -->
+  <div class="sec" id="sec-info">
+    <div class="sec-head"><div class="sec-head-ico">ℹ️</div><div><div class="sec-head-title" id="i-title">Informatie</div><div class="sec-head-sub">Quinta Valbom</div></div></div>
+    <div class="card" id="info-blocks-card"><div id="info-blocks"></div></div>
+    <div class="card">
+      <div class="card-title" id="tips-title">Tips & trips</div>
+      <div id="tips-list" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <div class="card-title" id="rest-title">Restaurant tips</div>
+      <div class="rest-grid" id="rest-grid"></div>
+    </div>
+  </div>
+
+  <!-- BEHEER -->
+  <div class="sec" id="sec-admin">
+    <div class="sec-head"><div class="sec-head-ico">⚙️</div><div><div class="sec-head-title" id="adm-title">Beheer <span class="staff-badge">Staff</span></div><div class="sec-head-sub" id="adm-sub">Bestellingen overzicht</div></div></div>
+    <div class="card">
+      <div id="adm-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title" id="me-title">Menu & prijzen</div>
+      <div class="divlbl" id="me-bread-lbl">Broodjes</div>
+      <div id="menu-edit-bread"></div>
+      <div class="divlbl" id="me-bar-lbl">Bar</div>
+      <div id="menu-edit-bar"></div>
+    </div>
+  </div>
+
+</div><!-- end #main -->
+
+<!-- BOTTOM NAV -->
+<nav id="nav">
+  <button class="nav-btn on" id="nav-bread" onclick="showT('bread')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+    <span class="nav-lbl" id="nl-bread">Broodjes</span>
+  </button>
+  <button class="nav-btn" id="nav-dinner" onclick="showT('dinner')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18M3 6a9 9 0 0118 0M12 6v5M8 11v8M16 11v8"/></svg>
+    <span class="nav-lbl" id="nl-dinner">Diner</span>
+  </button>
+  <button class="nav-btn" id="nav-wash" onclick="showT('wash')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="13" r="4"/><circle cx="8" cy="7" r="1" fill="currentColor" stroke="none"/></svg>
+    <span class="nav-lbl" id="nl-wash">Wassen</span>
+  </button>
+  <button class="nav-btn" id="nav-bar" onclick="showT('bar')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22V12L3 7V3h18v4l-5 5v10"/><path d="M8 22h8"/></svg>
+    <span class="nav-lbl" id="nl-bar">Bar</span>
+  </button>
+  <button class="nav-btn" id="nav-exp" onclick="showT('exp')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 000 20M12 2a14.5 14.5 0 010 20M2 12h20"/></svg>
+    <span class="nav-lbl" id="nl-exp">Uitstapjes</span>
+  </button>
+  <button class="nav-btn" id="nav-info" onclick="showT('info')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <span class="nav-lbl" id="nl-info">Info</span>
+  </button>
+  <button class="nav-btn" id="nav-admin" onclick="showT('admin')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+    <span class="nav-lbl" id="nl-admin">Beheer</span>
+  </button>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+</div><!-- end #app -->
+
+<script>
+// ===================== DATA =====================
+const QV={
+nl:{
+  hSub:'Happy Healthy Holidays',
+  navLbls:['Broodjes','Diner','Wassen','Bar','Uitstapjes','Info','Beheer'],
+  bTitle:'Broodjes bestellen',bSub:'Afhalen 8:30–11:30 · niet op zondag',
+  bNotice:'Bestel voor 20:00 voor de volgende ochtend. Afhalen bij de bar.',
+  bDayLbl:'Afhaaldag',bTotLbl:'Totaal',bBtn:'Bestelling plaatsen',bPlkLbl:'Plekkenummer',
+  dTitle:'Dinner night',dSub:'Dinsdag & vrijdag · 19:00 · max. 20 personen',
+  dNotice:'Gezamenlijk eten, vast menu. Reserveer op tijd — vol = vol.',
+  dDateLbl:'Datum',dAdultLbl:'Volwassenen',dKidLbl:'Kinderen',
+  dDietLbl:'Dieetwensen / allergieën',dVeg:'Vegetarisch',dGluten:'Glutenvrij',dLactose:'Lactosevrij',
+  dNotePh:'Overige allergieën of wensen...',dPlkLbl:'Plekkenummer',dBtn:'Reservering bevestigen',
+  dKidAgeLbl:'Leeftijd kind',
+  wTitle:'Wasmachine',wSub:'€ 6,00 incl. eco waspod',
+  wNotice:'Sleutel ophalen én terugbrengen bij de bar binnen uw tijdslot.',
+  wDayLbl:'Dag',wSlotLbl:'Tijdslot',wPlkLbl:'Plekkenummer',wBtn:'Slot reserveren — € 6,00',
+  barTitle:'Bar bestelling',barSub:'Open 15:00–19:00 · alleen contant',
+  barNotice:'Wij brengen uw bestelling naar uw plek.',
+  barTotLbl:'Totaal',barNotePh:'Opmerking...',barPlkLbl:'Plekkenummer',barBtn:'Bestelling plaatsen',
+  expTitle:'Uitstapjes',expSub:'Reservering of informatieverzoek',
+  expChsLbl:'Keuze',expPersLbl:'Personen',expDateLbl:'Datum',
+  expNoteLbl:'Vraag of opmerking',expPlkLbl:'Plekkenummer',expBtn:'Verzoek insturen',
+  iTitle:'Informatie',tipsTitle:'Tips & trips',restTitle:'Restaurant tips',
+  meTitle:'Menu & prijzen',meBreadLbl:'Broodjes',meBarLbl:'Bar',
+  admTitle:'Beheer',admSub:'Bestellingen overzicht',admEmpty:'Nog geen bestellingen.',
+  toasts:['Bestelling geplaatst! 🎉','Reservering bevestigd! 🎉','Slot gereserveerd! 🎉','Bestelling geplaatst! 🎉','Verzoek verstuurd! 🎉'],
+  errPlek:'Selecteer uw plekkenummer.',errSlot:'Kies een tijdslot.',errItems:'Voeg minimaal één item toe.',
+  taken:'Bezet',free:'Vrij',plkPh:'— Plekkenummer —',
+  expOpts:['Wijnproeverij (Santa Cristina / Villa Seara)','Jeep Experience','Fietsverhuur Eco-pista'],
+  expDescs:[
+    {t:'Wijnproeverij',d:'Bezoek wijnboerderij Santa Cristina of Villa Seara voor een proeverij of lunch. Vraag naar beschikbaarheid bij de bar.'},
+    {t:'Jeep Experience',d:'Ontdek de ongerepte natuur van Noord-Portugal door valleien, langs rivieren en door authentieke dorpjes. Halve of hele dag — prijs op aanvraag.'},
+    {t:'Fietsverhuur Eco-pista',d:'Verken het prachtige ecopista-fietspad van Arco de Baúlhe via Mondim naar Amarante. E-bikes en normale fietsen. Informeer bij de bar.'}
+  ],
+  infoItems:[
+    {ico:'📶',t:'Wifi',d:'Netwerk: <b>QuintaValbom</b><br>Wachtwoord: <b>HappyHolidays!</b>'},
+    {ico:'🕐',t:'Tijden',d:'Bar ochtend: 8:30–11:30 (broodjes & koffie)<br>Bar middag: 15:00–19:00 (wijn, bier, ijsjes)<br>Pauze 12:00–15:00 · nood via WhatsApp<br>Uitchecken voor 11:00'},
+    {ico:'🏊',t:'Zwembad',d:'Open 9:00–19:00 · eigen risico<br>Kinderen onder begeleiding · geen glas'},
+    {ico:'🚗',t:'Auto & parkeren',d:'Kort bij plek voor laden/lossen, daarna op de parkeerplaats.'},
+    {ico:'💧',t:'Water & sanitair',d:'Kraanwater is drinkbaar (eigen bron). Alleen wc-papier in de wc — de rest in de prullenbak.'},
+    {ico:'💶',t:'Betalen',d:'Bar: alleen <b>contant</b>.<br>Pinautomaat: Gandarela de Basto (naast GALP).'},
+    {ico:'♻️',t:'Afval',d:'Gescheiden afval op de parkeerplaats. Chemisch afval: Intermarché Cabeceiras de Basto.'},
+    {ico:'🔥',t:'BBQ',d:'<b>Niet toegestaan</b> op de camping vanwege brandgevaar.'},
+    {ico:'🚌',t:'Vervoer',d:'Bussen vanuit Gandarela de Basto.<br>Taxi Julio: <b>+351 968 035 736</b>'},
+    {ico:'📞',t:'Contact & nood',d:'Moniek & Thomas: <b>+351 910 348 399</b><br>motho@quintavalbom.nl<br>Alarmnummer: <b>112</b><br>Ambulance: +351 255 655 143'}
+  ],
+  tips:[
+    {n:'1',t:'Gandarela de Basto (5 min)',d:'Supermarkt, groenteboer, bakkerij, Convivio café, apotheek (achter GALP), taxi (naast GALP)'},
+    {n:'2',t:'Cabeceiras de Basto (15 min)',d:'Continente & Intermarché. Chemisch afval bij Intermarché.'},
+    {n:'3',t:'Ecopista fietspad',d:'Arco de Baúlhe → Mondim → Celorico → Amarante. Fietsverhuur via de bar.'},
+    {n:'4',t:'Wijnproeverij',d:'Santa Cristina of Villa Seara, of proef op ons terras.'},
+    {n:'5',t:'Mondim de Basto',d:'Wandelen en Portugees eten (Taberna do Casco Velho, Casa Logo, Naturaleza).'},
+    {n:'6',t:'Guimarães & Penha',d:'Terras, cultuur en historisch centrum.'},
+    {n:'7',t:'Amarante',d:'Prachtige stad aan de rivier.'},
+    {n:'8',t:'Braga',d:'Musea, winkelen, indrukwekkende architectuur.'},
+    {n:'9',t:'Natuurpark do Alvão',d:'Prachtige wandeling door ongerepte natuur.'},
+    {n:'10',t:'Activiteiten',d:'Jeep tours, waterpark Fafe of Amarante, Pena Aventura Park.'}
+  ],
+  restaurants:[
+    {a:'Ribas vallei',n:'Sabores Da Quinta'},
+    {a:'Mondim de Basto',n:'Taberna do Casco Velho · Casa Logo · Naturaleza (v)'},
+    {a:'Cabeceiras',n:'Raio de Sol · Cantinho dos Leitoes · MAT'},
+    {a:'Arco de Baúlhe',n:'O Paco · O Caneiro'},
+    {a:'Amarante',n:'Terrassa'},
+    {a:'Guimarães',n:'daTerra (v)'},
+    {a:'Lokaal',n:'Batataz / Convivio (pizza, friet, tosti)'}
+  ]
+},
+en:{
+  hSub:'Happy Healthy Holidays',
+  navLbls:['Bread','Dinner','Washing','Bar','Trips','Info','Admin'],
+  bTitle:'Order bread rolls',bSub:'Pick up 8:30–11:30 · closed Sundays',
+  bNotice:'Order before 20:00 for the next morning. Pick up at the bar.',
+  bDayLbl:'Pick-up day',bTotLbl:'Total',bBtn:'Place order',bPlkLbl:'Pitch number',
+  dTitle:'Dinner night',dSub:'Tuesday & Friday · 19:00 · max. 20 guests',
+  dNotice:'Shared table, set menu. Reserve in time — fully booked is fully booked.',
+  dDateLbl:'Date',dAdultLbl:'Adults',dKidLbl:'Children',
+  dDietLbl:'Dietary wishes / allergies',dVeg:'Vegetarian',dGluten:'Gluten-free',dLactose:'Lactose-free',
+  dNotePh:'Other allergies or wishes...',dPlkLbl:'Pitch number',dBtn:'Confirm reservation',
+  dKidAgeLbl:'Age of child',
+  wTitle:'Washing machine',wSub:'€ 6.00 incl. eco pod',
+  wNotice:'Collect and return the key at the bar within your time slot.',
+  wDayLbl:'Day',wSlotLbl:'Time slot',wPlkLbl:'Pitch number',wBtn:'Reserve slot — € 6.00',
+  barTitle:'Bar order',barSub:'Open 15:00–19:00 · cash only',
+  barNotice:'We will bring your order to your pitch.',
+  barTotLbl:'Total',barNotePh:'Note...',barPlkLbl:'Pitch number',barBtn:'Place order',
+  expTitle:'Trips & experiences',expSub:'Reservation or info request',
+  expChsLbl:'Choose',expPersLbl:'Persons',expDateLbl:'Date',
+  expNoteLbl:'Question or comment',expPlkLbl:'Pitch number',expBtn:'Send request',
+  iTitle:'Information',tipsTitle:'Tips & trips',restTitle:'Restaurant tips',
+  meTitle:'Menu & prices',meBreadLbl:'Bread rolls',meBarLbl:'Bar',
+  admTitle:'Admin',admSub:'Orders overview',admEmpty:'No orders yet.',
+  toasts:['Order placed! 🎉','Reservation confirmed! 🎉','Slot reserved! 🎉','Order placed! 🎉','Request sent! 🎉'],
+  errPlek:'Please select your pitch number.',errSlot:'Please select a time slot.',errItems:'Please add at least one item.',
+  taken:'Taken',free:'Free',plkPh:'— Pitch number —',
+  expOpts:['Wine tasting (Santa Cristina / Villa Seara)','Jeep Experience','Bike rental Eco-pista'],
+  expDescs:[
+    {t:'Wine tasting',d:'Visit winery Santa Cristina or Villa Seara for a tasting or lunch. Ask at the bar for availability.'},
+    {t:'Jeep Experience',d:'Explore unspoiled North Portugal by jeep through valleys and authentic villages. Half or full day — price on request.'},
+    {t:'Bike rental Eco-pista',d:'Cycle the eco-pista path from Arco de Baúlhe via Mondim to Amarante. E-bikes & regular bikes available. Ask at the bar.'}
+  ],
+  infoItems:[
+    {ico:'📶',t:'Wifi',d:'Network: <b>QuintaValbom</b><br>Password: <b>HappyHolidays!</b>'},
+    {ico:'🕐',t:'Opening hours',d:'Morning bar: 8:30–11:30 (rolls & coffee)<br>Afternoon bar: 15:00–19:00 (wine, beer, ice cream)<br>Break 12:00–15:00 · emergency via WhatsApp<br>Check-out before 11:00'},
+    {ico:'🏊',t:'Swimming pool',d:'Open 9:00–19:00 · use at own risk<br>Children under supervision · no glass'},
+    {ico:'🚗',t:'Car & parking',d:'Briefly drive to pitch for loading/unloading, then park in the car park.'},
+    {ico:'💧',t:'Water & sanitation',d:'Tap water is safe to drink (own spring). Toilet paper only in the toilet — everything else in the bin.'},
+    {ico:'💶',t:'Payment',d:'Bar: <b>cash only</b>.<br>ATM: Gandarela de Basto (next to GALP).'},
+    {ico:'♻️',t:'Waste',d:'Sorted waste bins at the car park. Chemical waste: Intermarché Cabeceiras de Basto.'},
+    {ico:'🔥',t:'BBQ',d:'<b>Not permitted</b> on site due to fire risk.'},
+    {ico:'🚌',t:'Transport',d:'Buses from Gandarela de Basto.<br>Local taxi Julio: <b>+351 968 035 736</b>'},
+    {ico:'📞',t:'Contact & emergency',d:'Moniek & Thomas: <b>+351 910 348 399</b><br>motho@quintavalbom.nl<br>Emergency: <b>112</b><br>Ambulance: +351 255 655 143'}
+  ],
+  tips:[
+    {n:'1',t:'Gandarela de Basto (5 min)',d:'Supermarket, greengrocer, bakery, Convivio café, pharmacy (behind GALP), taxi (next to GALP)'},
+    {n:'2',t:'Cabeceiras de Basto (15 min)',d:'Continente & Intermarché. Chemical waste at Intermarché.'},
+    {n:'3',t:'Eco-pista cycle path',d:'Arco de Baúlhe → Mondim → Celorico → Amarante. Bike hire via the bar.'},
+    {n:'4',t:'Wine tasting',d:'Santa Cristina or Villa Seara, or taste on our terrace.'},
+    {n:'5',t:'Mondim de Basto',d:'Hiking and dining (Taberna do Casco Velho, Casa Logo, Naturaleza).'},
+    {n:'6',t:'Guimarães & Penha',d:'Terraces, culture and historic centre.'},
+    {n:'7',t:'Amarante',d:'Beautiful riverside city.'},
+    {n:'8',t:'Braga',d:'Museums, shopping and impressive architecture.'},
+    {n:'9',t:'Alvão Nature Park',d:'Stunning hike through pristine nature.'},
+    {n:'10',t:'Activities',d:'Jeep tours, water parks in Fafe or Amarante, Pena Aventura Park.'}
+  ],
+  restaurants:[
+    {a:'Ribas valley',n:'Sabores Da Quinta'},
+    {a:'Mondim de Basto',n:'Taberna do Casco Velho · Casa Logo · Naturaleza (v)'},
+    {a:'Cabeceiras',n:'Raio de Sol · Cantinho dos Leitoes · MAT'},
+    {a:'Arco de Baúlhe',n:'O Paco · O Caneiro'},
+    {a:'Amarante',n:'Terrassa'},
+    {a:'Guimarães',n:'daTerra (v)'},
+    {a:'Local',n:'Batataz / Convivio (pizza, fries, toasties)'}
+  ]
+},
+pt:{
+  hSub:'Happy Healthy Holidays',
+  navLbls:['Pão','Jantar','Lavagem','Bar','Passeios','Info','Gestão'],
+  bTitle:'Encomendar pãezinhos',bSub:'Levantamento 8:30–11:30 · fechado ao domingo',
+  bNotice:'Encomendar antes das 20:00 para a manhã seguinte. Levantamento no bar.',
+  bDayLbl:'Dia de levantamento',bTotLbl:'Total',bBtn:'Fazer encomenda',bPlkLbl:'Número do lugar',
+  dTitle:'Jantar especial',dSub:'Terça & sexta · 19:00 · máx. 20 pessoas',
+  dNotice:'Mesa partilhada, menu fixo. Reserve com antecedência — lotação esgotada é lotação esgotada.',
+  dDateLbl:'Data',dAdultLbl:'Adultos',dKidLbl:'Crianças',
+  dDietLbl:'Preferências / alergias',dVeg:'Vegetariano',dGluten:'Sem glúten',dLactose:'Sem lactose',
+  dNotePh:'Outras alergias ou preferências...',dPlkLbl:'Número do lugar',dBtn:'Confirmar reserva',
+  dKidAgeLbl:'Idade da criança',
+  wTitle:'Máquina de lavar',wSub:'€ 6,00 incl. cápsula eco',
+  wNotice:'Levante e devolva a chave no bar dentro do seu horário.',
+  wDayLbl:'Dia',wSlotLbl:'Horário',wPlkLbl:'Número do lugar',wBtn:'Reservar horário — € 6,00',
+  barTitle:'Pedido de bar',barSub:'Aberto 15:00–19:00 · apenas dinheiro',
+  barNotice:'Entregamos o seu pedido no seu lugar.',
+  barTotLbl:'Total',barNotePh:'Observação...',barPlkLbl:'Número do lugar',barBtn:'Fazer pedido',
+  expTitle:'Passeios & experiências',expSub:'Reserva ou pedido de informação',
+  expChsLbl:'Escolha',expPersLbl:'Pessoas',expDateLbl:'Data',
+  expNoteLbl:'Pergunta ou comentário',expPlkLbl:'Número do lugar',expBtn:'Enviar pedido',
+  iTitle:'Informações',tipsTitle:'Dicas & passeios',restTitle:'Restaurantes',
+  meTitle:'Menu & preços',meBreadLbl:'Pãezinhos',meBarLbl:'Bar',
+  admTitle:'Gestão',admSub:'Visão geral de pedidos',admEmpty:'Sem encomendas ainda.',
+  toasts:['Encomenda feita! 🎉','Reserva confirmada! 🎉','Horário reservado! 🎉','Pedido feito! 🎉','Pedido enviado! 🎉'],
+  errPlek:'Selecione o número do seu lugar.',errSlot:'Escolha um horário.',errItems:'Adicione pelo menos um item.',
+  taken:'Ocupado',free:'Livre',plkPh:'— Número do lugar —',
+  expOpts:['Prova de vinhos (Santa Cristina / Villa Seara)','Jeep Experience','Aluguer de bicicletas Eco-pista'],
+  expDescs:[
+    {t:'Prova de vinhos',d:'Visite a Santa Cristina ou Villa Seara para uma prova ou almoço. Pergunte no bar sobre disponibilidade.'},
+    {t:'Jeep Experience',d:'Descubra a natureza intocada do Norte de Portugal por vales e aldeias autênticas. Meio dia ou dia inteiro — preço sob consulta.'},
+    {t:'Aluguer de bicicletas Eco-pista',d:'Percurso eco-pista de Arco de Baúlhe via Mondim até Amarante. E-bikes e bicicletas normais. Pergunte no bar.'}
+  ],
+  infoItems:[
+    {ico:'📶',t:'Wifi',d:'Rede: <b>QuintaValbom</b><br>Senha: <b>HappyHolidays!</b>'},
+    {ico:'🕐',t:'Horários',d:'Bar manhã: 8:30–11:30 (pão & café)<br>Bar tarde: 15:00–19:00 (vinho, cerveja, gelados)<br>Pausa 12:00–15:00 · urgência via WhatsApp<br>Check-out antes das 11:00'},
+    {ico:'🏊',t:'Piscina',d:'Aberta 9:00–19:00 · por conta própria<br>Crianças com supervisão · sem vidro'},
+    {ico:'🚗',t:'Carro & estacionamento',d:'Breve paragem no lugar para carregar/descarregar, depois no parque de estacionamento.'},
+    {ico:'💧',t:'Água & saneamento',d:'Água potável (nascente própria). Só papel higiénico na sanita — o resto no caixote.'},
+    {ico:'💶',t:'Pagamento',d:'Bar: apenas <b>dinheiro</b>.<br>Multibanco: Gandarela de Basto (junto ao GALP).'},
+    {ico:'♻️',t:'Resíduos',d:'Contentores de reciclagem no parque. Resíduos químicos: Intermarché Cabeceiras de Basto.'},
+    {ico:'🔥',t:'BBQ',d:'<b>Não permitido</b> no campismo por risco de incêndio.'},
+    {ico:'🚌',t:'Transportes',d:'Autocarros de Gandarela de Basto.<br>Táxi Julio: <b>+351 968 035 736</b>'},
+    {ico:'📞',t:'Contacto & emergência',d:'Moniek & Thomas: <b>+351 910 348 399</b><br>motho@quintavalbom.nl<br>Emergência: <b>112</b><br>Ambulância: +351 255 655 143'}
+  ],
+  tips:[
+    {n:'1',t:'Gandarela de Basto (5 min)',d:'Supermercado, frutaria, padaria, café Convivio, farmácia (atrás do GALP), táxi (junto ao GALP)'},
+    {n:'2',t:'Cabeceiras de Basto (15 min)',d:'Continente & Intermarché. Resíduos químicos no Intermarché.'},
+    {n:'3',t:'Percurso eco-pista',d:'Arco de Baúlhe → Mondim → Celorico → Amarante. Aluguer de bicicletas no bar.'},
+    {n:'4',t:'Prova de vinhos',d:'Santa Cristina ou Villa Seara, ou prove no nosso terraço.'},
+    {n:'5',t:'Mondim de Basto',d:'Caminhadas e jantar português (Taberna do Casco Velho, Casa Logo, Naturaleza).'},
+    {n:'6',t:'Guimarães & Penha',d:'Terraço, cultura e centro histórico.'},
+    {n:'7',t:'Amarante',d:'Bela cidade à beira do rio.'},
+    {n:'8',t:'Braga',d:'Museus, compras e arquitetura impressionante.'},
+    {n:'9',t:'Parque Natural do Alvão',d:'Caminhada magnífica pela natureza intocada.'},
+    {n:'10',t:'Atividades',d:'Jeep tours, parques aquáticos em Fafe ou Amarante, Pena Aventura Park.'}
+  ],
+  restaurants:[
+    {a:'Vale de Ribas',n:'Sabores Da Quinta'},
+    {a:'Mondim de Basto',n:'Taberna do Casco Velho · Casa Logo · Naturaleza (v)'},
+    {a:'Cabeceiras',n:'Raio de Sol · Cantinho dos Leitoes · MAT'},
+    {a:'Arco de Baúlhe',n:'O Paco · O Caneiro'},
+    {a:'Amarante',n:'Terrassa'},
+    {a:'Guimarães',n:'daTerra (v)'},
+    {a:'Local',n:'Batataz / Convivio (pizza, batatas fritas, tostas)'}
+  ]
+}
+};
+
+const breadMenu=[
+  {id:'b1',name:{nl:'Wit broodje',en:'White roll',pt:'Pãozinho branco'},price:0.50},
+  {id:'b2',name:{nl:'Bruin broodje',en:'Brown roll',pt:'Pão integral'},price:0.50},
+  {id:'b3',name:{nl:'Groot zuurdesembrood',en:'Large sourdough loaf',pt:'Pão de massa mãe grande'},price:4.00},
+  {id:'b4',name:{nl:'Pastel de nata',en:'Pastel de nata',pt:'Pastel de nata'},price:2.50},
+];
+const barMenu=[
+  {id:'w1',name:{nl:'Lokale wijn wit',en:'Local white wine',pt:'Vinho branco local'},price:8.00},
+  {id:'w2',name:{nl:'Lokale wijn rosé',en:'Local rosé wine',pt:'Vinho rosé local'},price:8.00},
+  {id:'w3',name:{nl:'Lokale wijn rood',en:'Local red wine',pt:'Vinho tinto local'},price:8.00},
+  {id:'w4',name:{nl:'Super Bock',en:'Super Bock',pt:'Super Bock'},price:2.50},
+  {id:'w5',name:{nl:'Speciaal bier',en:'Craft beer',pt:'Cerveja artesanal'},price:3.50},
+  {id:'w6',name:{nl:'Frisdrank',en:'Soft drink',pt:'Refrigerante'},price:2.00},
+  {id:'w7',name:{nl:'IJsje',en:'Ice cream',pt:'Gelado'},price:2.50},
+];
+const washSlots=[{id:'s1',time:'09:00–11:00'},{id:'s2',time:'11:00–13:00'},{id:'s3',time:'16:00–18:00'}];
+
+// ===================== STATE =====================
+let lang='nl', bQty={}, barQty={}, selWash=null, washBooked={}, orders=[];
+
+// auto-detect pitch from URL ?plek=N
+const urlPlek = new URLSearchParams(location.search).get('plek');
+
+// ===================== UTILS =====================
+function fmt(n){return'€ '+n.toFixed(2).replace('.',',')}
+function fmtDate(dt){return dt.toLocaleDateString(lang==='en'?'en-GB':lang==='pt'?'pt-PT':'nl-NL',{weekday:'short',day:'numeric',month:'short'})}
+function getNextDays(noSun,count){
+  const days=[],d=new Date();
+  while(days.length<count){d.setDate(d.getDate()+1);if(noSun&&d.getDay()===0)continue;days.push(new Date(d));}
+  return days;
+}
+function getNextDinnerDays(count){
+  const days=[],d=new Date();
+  while(days.length<count){d.setDate(d.getDate()+1);if(d.getDay()===2||d.getDay()===5)days.push(new Date(d));}
+  return days;
+}
+function fillSel(id,opts,ph){
+  const s=document.getElementById(id);s.innerHTML='';
+  const o=document.createElement('option');o.value='';o.textContent=ph||'—';s.appendChild(o);
+  opts.forEach(([v,t])=>{const op=document.createElement('option');op.value=v;op.textContent=t;s.appendChild(op);});
+}
+function fillPlek(id){
+  const s=document.getElementById(id);s.innerHTML='';
+  const L=QV[lang];
+  const o=document.createElement('option');o.value='';o.textContent=L.plkPh;s.appendChild(o);
+  for(let i=1;i<=30;i++){const op=document.createElement('option');op.value=i;op.textContent=i;if(urlPlek&&parseInt(urlPlek)===i)op.selected=true;s.appendChild(op);}
+}
+function showErr(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',3500);}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+function setText(id,txt){const el=document.getElementById(id);if(el)el.textContent=txt;}
+function setHTML(id,html){const el=document.getElementById(id);if(el)el.innerHTML=html;}
+function setAttr(id,attr,val){const el=document.getElementById(id);if(el)el.setAttribute(attr,val);}
+
+// ===================== RENDER =====================
+function renderBreadItems(){
+  const c=document.getElementById('bread-items');c.innerHTML='';
+  breadMenu.forEach(item=>{
+    const q=bQty[item.id]||0;
+    const r=document.createElement('div');r.className='q-row';
+    r.innerHTML=`<span class="q-name">${item.name[lang]}</span><span style="display:flex;align-items:center"><span class="q-price">${fmt(item.price)}</span><div class="q-ctrl"><button class="q-btn" onclick="chgQ('b','${item.id}',-1)">−</button><span class="q-num" id="bq-${item.id}">${q}</span><button class="q-btn" onclick="chgQ('b','${item.id}',1)">+</button></div></span>`;
+    c.appendChild(r);
+  });updBTot();
+}
+function renderBarItems(){
+  const c=document.getElementById('bar-items');c.innerHTML='';
+  barMenu.forEach(item=>{
+    const q=barQty[item.id]||0;
+    const r=document.createElement('div');r.className='q-row';
+    r.innerHTML=`<span class="q-name">${item.name[lang]}</span><span style="display:flex;align-items:center"><span class="q-price">${fmt(item.price)}</span><div class="q-ctrl"><button class="q-btn" onclick="chgQ('bar','${item.id}',-1)">−</button><span class="q-num" id="barq-${item.id}">${q}</span><button class="q-btn" onclick="chgQ('bar','${item.id}',1)">+</button></div></span>`;
+    c.appendChild(r);
+  });updBarTot();
+}
+function chgQ(type,id,d){
+  if(type==='b'){bQty[id]=Math.max(0,(bQty[id]||0)+d);const el=document.getElementById('bq-'+id);if(el)el.textContent=bQty[id];updBTot();}
+  else{barQty[id]=Math.max(0,(barQty[id]||0)+d);const el=document.getElementById('barq-'+id);if(el)el.textContent=barQty[id];updBarTot();}
+}
+function updBTot(){let t=0;breadMenu.forEach(i=>t+=(bQty[i.id]||0)*i.price);setText('b-tot',fmt(t));}
+function updBarTot(){let t=0;barMenu.forEach(i=>t+=(barQty[i.id]||0)*i.price);setText('bar-tot',fmt(t));}
+
+function renderKidAges(){
+  const n=parseInt(document.getElementById('d-kids').value)||0;
+  const wrap=document.getElementById('kid-ages-wrap');wrap.innerHTML='';
+  const L=QV[lang];
+  for(let i=0;i<n;i++){
+    const d=document.createElement('div');d.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:8px';
+    d.innerHTML=`<label style="font-size:13px;color:var(--muted);flex:1">${L.dKidAgeLbl} ${i+1}</label><input type="number" min="0" max="17" value="6" id="kage-${i}" style="width:90px;margin-bottom:0">`;
+    wrap.appendChild(d);
+  }
+}
+
+function renderWashSlots(){
+  const dayIdx=document.getElementById('w-day').value;
+  const key='d'+dayIdx;if(!washBooked[key])washBooked[key]={};
+  const L=QV[lang];const c=document.getElementById('wash-slots');c.innerHTML='';
+  washSlots.forEach(s=>{
+    const taken=washBooked[key][s.id];
+    const on=selWash===s.id;
+    const el=document.createElement('div');
+    el.className='slot'+(taken?' taken':'')+(on?' on':'');
+    el.innerHTML=`<span class="slot-time">${s.time}</span><span class="slot-lbl">${taken?L.taken:L.free}</span>`;
+    if(!taken)el.onclick=()=>{selWash=s.id;renderWashSlots();};
+    c.appendChild(el);
+  });
+}
+
+function renderExpTiles(){
+  const L=QV[lang];const c=document.getElementById('exp-tiles');c.innerHTML='';
+  L.expDescs.forEach(e=>{
+    const el=document.createElement('div');el.className='exp-tile';
+    el.innerHTML=`<h4>${e.t}</h4><p>${e.d}</p>`;c.appendChild(el);
+  });
+  fillSel('exp-choice',L.expOpts.map((o,i)=>[i,o]),L.expChsLbl);
+}
+
+function renderInfo(){
+  const L=QV[lang];
+  const c=document.getElementById('info-blocks');c.innerHTML='';
+  L.infoItems.forEach(item=>{
+    const el=document.createElement('div');el.className='info-blk';
+    el.innerHTML=`<div class="info-ico">${item.ico}</div><div class="info-txt"><h4>${item.t}</h4><p>${item.d}</p></div>`;
+    c.appendChild(el);
+  });
+  const tl=document.getElementById('tips-list');tl.innerHTML='';
+  L.tips.forEach(t=>{
+    const el=document.createElement('div');el.className='tip-item';
+    el.innerHTML=`<span class="tip-n">${t.n}.</span><strong>${t.t}</strong> — ${t.d}`;tl.appendChild(el);
+  });
+  const rg=document.getElementById('rest-grid');rg.innerHTML='';
+  L.restaurants.forEach(r=>{
+    const el=document.createElement('div');el.className='rest-card';
+    el.innerHTML=`<h5>${r.a}</h5><p>${r.n}</p>`;rg.appendChild(el);
+  });
+}
+
+function renderAdmin(){
+  const L=QV[lang];const c=document.getElementById('adm-list');
+  if(!orders.length){c.innerHTML=`<p style="font-size:13px;color:var(--muted);padding:8px 0">${L.admEmpty}</p>`;return;}
+  c.innerHTML='';
+  orders.forEach((o,i)=>{
+    const el=document.createElement('div');el.className='adm-row';
+    const doneWord=lang==='nl'?'Klaar':lang==='en'?'Done':'Pronto';
+    const newWord=lang==='nl'?'Nieuw':lang==='en'?'New':'Novo';
+    el.innerHTML=`<div><div class="adm-plek">Plek ${o.plek} ${o.type}</div><div class="adm-detail">${o.detail}</div></div><span class="adm-badge ${o.done?'adm-done':'adm-new'}" onclick="toggleDone(${i})">${o.done?doneWord:newWord}</span>`;
+    c.appendChild(el);
+  });
+}
+function toggleDone(i){orders[i].done=!orders[i].done;renderAdmin();}
+
+function renderMenuEdit(){
+  const L=QV[lang];
+  const c=document.getElementById('menu-edit-bread');c.innerHTML='';
+  breadMenu.forEach(item=>{
+    const el=document.createElement('div');el.className='me-row';
+    el.innerHTML=`<span>${item.name[lang]}</span><input type="number" step="0.10" min="0" value="${item.price.toFixed(2)}" class="me-inp" onchange="breadMenu.find(b=>b.id==='${item.id}').price=parseFloat(this.value)||0;renderBreadItems()">`;
+    c.appendChild(el);
+  });
+  const c2=document.getElementById('menu-edit-bar');c2.innerHTML='';
+  barMenu.forEach(item=>{
+    const el=document.createElement('div');el.className='me-row';
+    el.innerHTML=`<span>${item.name[lang]}</span><input type="number" step="0.10" min="0" value="${item.price.toFixed(2)}" class="me-inp" onchange="barMenu.find(b=>b.id==='${item.id}').price=parseFloat(this.value)||0;renderBarItems()">`;
+    c2.appendChild(el);
+  });
+}
+
+// ===================== ORDERS =====================
+function doOrder(type){
+  const L=QV[lang];
+  if(type==='bread'){
+    const plek=document.getElementById('b-plek').value;
+    if(!plek){showErr('b-err',L.errPlek);return;}
+    const items=breadMenu.filter(b=>(bQty[b.id]||0)>0);
+    if(!items.length){showErr('b-err',L.errItems);return;}
+    const day=document.getElementById('b-day').options[document.getElementById('b-day').selectedIndex].text;
+    const detail=items.map(b=>`${bQty[b.id]}× ${b.name.nl}`).join(', ')+' | '+day;
+    orders.unshift({plek,type:'🥖',detail,done:false});
+    bQty={};renderBreadItems();showToast(L.toasts[0]);renderAdmin();
+  } else if(type==='dinner'){
+    const plek=document.getElementById('d-plek').value;
+    if(!plek){showErr('d-err',L.errPlek);return;}
+    const date=document.getElementById('d-date').options[document.getElementById('d-date').selectedIndex].text;
+    const adults=document.getElementById('d-adults').value;
+    const kids=document.getElementById('d-kids').value;
+    const veg=document.getElementById('d-veg').checked;
+    const gluten=document.getElementById('d-gluten').checked;
+    const lactose=document.getElementById('d-lactose').checked;
+    const note=document.getElementById('d-note').value;
+    const diet=[veg&&'Veg',gluten&&'Gluten',lactose&&'Lactose',note].filter(Boolean).join(', ');
+    const detail=`${date} · ${adults}v + ${kids}k${diet?' · '+diet:''}`;
+    orders.unshift({plek,type:'🍽️',detail,done:false});showToast(L.toasts[1]);renderAdmin();
+  } else if(type==='wash'){
+    const plek=document.getElementById('w-plek').value;
+    if(!plek){showErr('w-err',L.errPlek);return;}
+    if(!selWash){showErr('w-err',L.errSlot);return;}
+    const dayIdx=document.getElementById('w-day').value;
+    const key='d'+dayIdx;if(!washBooked[key])washBooked[key]={};
+    washBooked[key][selWash]=true;
+    const dayTxt=document.getElementById('w-day').options[document.getElementById('w-day').selectedIndex].text;
+    const slotTxt=washSlots.find(s=>s.id===selWash).time;
+    orders.unshift({plek,type:'🧺',detail:`${dayTxt} ${slotTxt} · € 6,00`,done:false});
+    selWash=null;renderWashSlots();showToast(L.toasts[2]);renderAdmin();
+  } else if(type==='bar'){
+    const plek=document.getElementById('bar-plek').value;
+    if(!plek){showErr('bar-err',L.errPlek);return;}
+    const items=barMenu.filter(b=>(barQty[b.id]||0)>0);
+    if(!items.length){showErr('bar-err',L.errItems);return;}
+    const note=document.getElementById('bar-note').value;
+    const detail=items.map(b=>`${barQty[b.id]}× ${b.name.nl}`).join(', ')+(note?' · '+note:'');
+    orders.unshift({plek,type:'🍷',detail,done:false});
+    barQty={};renderBarItems();showToast(L.toasts[3]);renderAdmin();
+  } else if(type==='exp'){
+    const plek=document.getElementById('exp-plek').value;
+    if(!plek){showErr('exp-err',L.errPlek);return;}
+    const choice=document.getElementById('exp-choice').options[document.getElementById('exp-choice').selectedIndex].text;
+    const pers=document.getElementById('exp-pers').value;
+    const date=document.getElementById('exp-date').value;
+    const note=document.getElementById('exp-note').value;
+    const detail=`${choice} · ${pers}p${date?' · '+date:''}${note?' · '+note:''}`;
+    orders.unshift({plek,type:'🗺️',detail,done:false});showToast(L.toasts[4]);renderAdmin();
+  }
+}
+
+// ===================== NAV =====================
+const TABS=['bread','dinner','wash','bar','exp','info','admin'];
+function showT(name){
+  TABS.forEach(t=>{
+    document.getElementById('sec-'+t).classList.toggle('on',t===name);
+    document.getElementById('nav-'+t).classList.toggle('on',t===name);
+  });
+  document.getElementById('main').scrollTo(0,0);
+}
+
+// ===================== LANG =====================
+function setL(l){
+  lang=l;
+  document.querySelectorAll('.lb').forEach(b=>b.classList.remove('on'));
+  document.querySelector(`.lb[onclick="setL('${l}')"]`).classList.add('on');
+  applyLang();
+}
+
+function applyLang(){
+  const L=QV[lang];
+  setText('h-sub',L.hSub);
+  // nav labels
+  const nids=['bread','dinner','wash','bar','exp','info','admin'];
+  nids.forEach((t,i)=>setText('nl-'+t,L.navLbls[i]));
+  // bread
+  setText('b-title',L.bTitle);setText('b-sub',L.bSub);setText('b-notice',L.bNotice);
+  setText('b-daylbl',L.bDayLbl);setText('b-totlbl',L.bTotLbl);setText('b-btn',L.bBtn);setText('b-plklbl',L.bPlkLbl);
+  // dinner
+  setText('d-title',L.dTitle);setText('d-sub',L.dSub);setText('d-notice',L.dNotice);
+  setText('d-datelbl',L.dDateLbl);setText('d-adultlbl',L.dAdultLbl);setText('d-kidlbl',L.dKidLbl);
+  setText('d-dietlbl',L.dDietLbl);setText('d-veglbl',L.dVeg);setText('d-glutenlbl',L.dGluten);setText('d-lactoselbl',L.dLactose);
+  setAttr('d-note','placeholder',L.dNotePh);setText('d-plklbl',L.dPlkLbl);setText('d-btn',L.dBtn);
+  // wash
+  setText('w-title',L.wTitle);setText('w-sub',L.wSub);setText('w-notice',L.wNotice);
+  setText('w-daylbl',L.wDayLbl);setText('w-slotlbl',L.wSlotLbl);setText('w-plklbl',L.wPlkLbl);setText('w-btn',L.wBtn);
+  // bar
+  setText('bar-title',L.barTitle);setText('bar-sub',L.barSub);setText('bar-notice',L.barNotice);
+  setText('bar-totlbl',L.barTotLbl);setAttr('bar-note','placeholder',L.barNotePh);setText('bar-plklbl',L.barPlkLbl);setText('bar-btn',L.barBtn);
+  // exp
+  setText('exp-title',L.expTitle);setText('exp-sub',L.expSub);
+  setText('exp-chslbl',L.expChsLbl);setText('exp-perslbl',L.expPersLbl);setText('exp-datelbl',L.expDateLbl);
+  setText('exp-notelbl',L.expNoteLbl);setText('exp-plklbl',L.expPlkLbl);setText('exp-btn',L.expBtn);
+  // info
+  setText('i-title',L.iTitle);setText('tips-title',L.tipsTitle);setText('rest-title',L.restTitle);
+  // admin
+  setText('adm-title',L.admTitle);setText('adm-sub',L.admSub);
+  setText('me-title',L.meTitle);setText('me-bread-lbl',L.meBreadLbl);setText('me-bar-lbl',L.meBarLbl);
+
+  // fill selects
+  ['b-plek','d-plek','w-plek','bar-plek','exp-plek'].forEach(id=>fillPlek(id));
+  fillSel('b-day',getNextDays(true,6).map((d,i)=>[i,fmtDate(d)]),L.bDayLbl);
+  fillSel('d-date',getNextDinnerDays(6).map((d,i)=>[i,fmtDate(d)]),L.dDateLbl);
+  fillSel('w-day',getNextDays(false,7).map((d,i)=>[i,fmtDate(d)]),L.wDayLbl);
+
+  renderBreadItems();renderBarItems();renderWashSlots();renderExpTiles();renderInfo();renderAdmin();renderMenuEdit();renderKidAges();
+}
+
+// ===================== INSTALL BANNER =====================
+function checkInstallBanner(){
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone=window.navigator.standalone===true;
+  if(isIOS&&!isStandalone&&!sessionStorage.getItem('ib-dismissed')){
+    const banner=document.getElementById('install-banner');
+    banner.style.display='flex';
+    banner.querySelector('.close-x').onclick=()=>{
+      banner.style.display='none';
+      sessionStorage.setItem('ib-dismissed','1');
+    };
+    // translate
+    const msgs={nl:'Zet op beginscherm: tik <strong>Delen</strong> → <strong>Zet op beginscherm</strong>',
+      en:'Add to home screen: tap <strong>Share</strong> → <strong>Add to Home Screen</strong>',
+      pt:'Adicionar ao ecrã: toque em <strong>Partilhar</strong> → <strong>Adicionar ao ecrã de início</strong>'};
+    document.getElementById('ib-txt').innerHTML=msgs[lang]||msgs.nl;
+  }
+}
+
+// ===================== INIT =====================
+applyLang();
+checkInstallBanner();
+</script>
+</body>
+</html>

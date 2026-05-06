@@ -17,7 +17,24 @@
         <h1>Quinta Valbom</h1>
         <p id="user-info">Plek —</p>
       </div>
+      <button class="hamburger" id="hamburger-btn" onclick="toggleMenu()" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </header>
+
+    <div class="menu-overlay" id="menu-overlay" onclick="toggleMenu()"></div>
+
+    <div class="mobile-menu" id="mobile-menu">
+      <button class="nav-btn active" data-tab="bread" onclick="switchTab('bread', this)">🥖 Broodjes</button>
+      <button class="nav-btn" data-tab="dinner" onclick="switchTab('dinner', this)">🍽️ Diner</button>
+      <button class="nav-btn" data-tab="wash" onclick="switchTab('wash', this)">🧺 Wassen</button>
+      <button class="nav-btn" data-tab="bar" onclick="switchTab('bar', this)">🍷 Bar</button>
+      <button class="nav-btn" data-tab="trips" onclick="switchTab('trips', this)">🗺️ Uitstapjes</button>
+      <button class="nav-btn" data-tab="info" onclick="switchTab('info', this)">ℹ️ Info</button>
+      <button class="nav-btn" data-tab="admin" onclick="switchTab('admin', this)">⚙️ Beheer</button>
+    </div>
 
     <main id="main">
       <!-- BROODJES -->
@@ -151,13 +168,13 @@
     </main>
 
     <nav>
-      <button class="nav-btn active" onclick="switchTab('bread')">🥖 Broodjes</button>
-      <button class="nav-btn" onclick="switchTab('dinner')">🍽️ Diner</button>
-      <button class="nav-btn" onclick="switchTab('wash')">🧺 Wassen</button>
-      <button class="nav-btn" onclick="switchTab('bar')">🍷 Bar</button>
-      <button class="nav-btn" onclick="switchTab('trips')">🗺️ Trips</button>
-      <button class="nav-btn" onclick="switchTab('info')">ℹ️ Info</button>
-      <button class="nav-btn" onclick="switchTab('admin')">⚙️ Beheer</button>
+      <button class="nav-btn active" data-tab="bread" onclick="switchTab('bread', this)">🥖 Broodjes</button>
+      <button class="nav-btn" data-tab="dinner" onclick="switchTab('dinner', this)">🍽️ Diner</button>
+      <button class="nav-btn" data-tab="wash" onclick="switchTab('wash', this)">🧺 Wassen</button>
+      <button class="nav-btn" data-tab="bar" onclick="switchTab('bar', this)">🍷 Bar</button>
+      <button class="nav-btn" data-tab="trips" onclick="switchTab('trips', this)">🗺️ Trips</button>
+      <button class="nav-btn" data-tab="info" onclick="switchTab('info', this)">ℹ️ Info</button>
+      <button class="nav-btn" data-tab="admin" onclick="switchTab('admin', this)">⚙️ Beheer</button>
     </nav>
   </div>
 
@@ -542,16 +559,29 @@
       }
     }
 
-    function switchTab(tab) {
+    function switchTab(tab, btn) {
+      if (tab === 'admin') {
+        window.location.href = './admin.html';
+        return;
+      }
+
       currentTab = tab;
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.getElementById(`section-${tab}`).classList.add('active');
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
+      document.querySelectorAll('.nav-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === tab);
+      });
 
-      if (tab === 'admin') {
-        window.location.href = './admin.html';
-      }
+      // Close mobile menu
+      document.getElementById('mobile-menu').classList.remove('open');
+      document.getElementById('menu-overlay').classList.remove('open');
+      document.getElementById('hamburger-btn').classList.remove('open');
+    }
+
+    function toggleMenu() {
+      document.getElementById('mobile-menu').classList.toggle('open');
+      document.getElementById('menu-overlay').classList.toggle('open');
+      document.getElementById('hamburger-btn').classList.toggle('open');
     }
 
     function showToast(msg) {

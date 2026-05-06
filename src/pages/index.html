@@ -44,6 +44,24 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase.js?v=20260506"></script>
   <script>
+    // Check if user already onboarded
+    const urlParams = new URLSearchParams(location.search);
+    const forceOnboarding = urlParams.get('reset') === '1';
+    const existingUser = localStorage.getItem('qv_user');
+
+    if (existingUser && !forceOnboarding) {
+      try {
+        const user = JSON.parse(existingUser);
+        if (user.name && user.plek) {
+          // Skip onboarding, go straight to app
+          window.location.href = './app.html?plek=' + user.plek;
+        }
+      } catch (e) {
+        // Invalid data, clear it
+        localStorage.removeItem('qv_user');
+      }
+    }
+
     // Fill pitch numbers
     const plekSelect = document.getElementById('plek');
     for (let i = 1; i <= 30; i++) {
@@ -54,7 +72,6 @@
     }
 
     // Auto-fill from URL
-    const urlParams = new URLSearchParams(location.search);
     if (urlParams.get('plek')) {
       plekSelect.value = urlParams.get('plek');
     }

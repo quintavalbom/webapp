@@ -106,12 +106,13 @@
         <div class="card">
           <h2 class="card-title">🗺️ Uitstapjes & ervaringen</h2>
           <label>Keuze</label>
-          <select id="trips-choice">
+          <select id="trips-choice" onchange="updateTripsHint()">
             <option value="">-- Selecteer --</option>
             <option value="0">Wijnproeverij (Santa Cristina / Villa Seara)</option>
-            <option value="1">Jeep Experience</option>
+            <option value="1">Jeep Experience (alleen di & do)</option>
             <option value="2">Fietsverhuur Eco-pista</option>
           </select>
+          <div id="trips-hint" style="display: none; font-size: 12px; color: var(--qvt); background: var(--qvl); padding: 8px 12px; border-radius: 8px; margin-bottom: 12px;"></div>
           <div class="grid-2">
             <div>
               <label>Personen</label>
@@ -492,6 +493,17 @@
       }
     }
 
+    function updateTripsHint() {
+      const choice = document.getElementById('trips-choice').value;
+      const hint = document.getElementById('trips-hint');
+      if (choice === '1') {
+        hint.textContent = '🚙 Jeep Experience is alleen beschikbaar op dinsdag en donderdag.';
+        hint.style.display = 'block';
+      } else {
+        hint.style.display = 'none';
+      }
+    }
+
     async function placeTripsRequest() {
       const choice = document.getElementById('trips-choice').value;
       if (!choice) {
@@ -499,11 +511,26 @@
         return;
       }
 
+      const date = document.getElementById('trips-date').value;
+
+      // Jeep Experience: only Tuesday & Thursday
+      if (choice === '1') {
+        if (!date) {
+          showError('trips-error', 'Selecteer een datum (alleen di of do mogelijk).');
+          return;
+        }
+        const day = new Date(date).getDay();
+        if (day !== 2 && day !== 4) {
+          showError('trips-error', 'Jeep Experience is alleen op dinsdag of donderdag.');
+          return;
+        }
+      }
+
       const options = ['Wijnproeverij', 'Jeep Experience', 'Fietsverhuur'];
       const result = await saveOrder({
         plek: user.plek,
         type: '🗺️',
-        detail: `${options[choice]} · ${document.getElementById('trips-persons').value}p`,
+        detail: `${options[choice]} · ${document.getElementById('trips-persons').value}p${date ? ' · ' + date : ''}`,
         done: false
       });
 

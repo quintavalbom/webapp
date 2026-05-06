@@ -756,22 +756,28 @@ function renderInfo(){
 }
 
 async function renderAdmin(){
-  const L=QV[lang];
-  if(!adminLoggedIn){showAdminLogin();return;}
-  showAdminContent();
-  const c=document.getElementById('adm-list');
-  c.innerHTML=`<p style="font-size:12px;color:var(--muted)">Laden...</p>`;
-  const {data}=await sb.from('orders').select('*').order('created_at',{ascending:false});
-  orders=data||[];
-  if(!orders.length){c.innerHTML=`<p style="font-size:13px;color:var(--muted);padding:8px 0">${L.admEmpty}</p>`;return;}
-  c.innerHTML='';
-  orders.forEach(o=>{
-    const el=document.createElement('div');el.className='adm-row';
-    const doneWord=lang==='nl'?'Klaar':lang==='en'?'Done':'Pronto';
-    const newWord=lang==='nl'?'Nieuw':lang==='en'?'New':'Novo';
-    el.innerHTML=`<div><div class="adm-plek">Plek ${o.plek} ${o.type}</div><div class="adm-detail">${o.detail}</div></div><span class="adm-badge ${o.done?'adm-done':'adm-new'}" onclick="toggleDone('${o.id}',${!o.done})">${o.done?doneWord:newWord}</span>`;
-    c.appendChild(el);
-  });
+  try {
+    const L=QV[lang];
+    if(!adminLoggedIn){showAdminLogin();return;}
+    showAdminContent();
+    const c=document.getElementById('adm-list');
+    c.innerHTML=`<p style="font-size:12px;color:var(--muted)">Laden...</p>`;
+    const {data,error}=await sb.from('orders').select('*').order('created_at',{ascending:false});
+    if(error)throw error;
+    orders=data||[];
+    if(!orders.length){c.innerHTML=`<p style="font-size:13px;color:var(--muted);padding:8px 0">${L.admEmpty}</p>`;return;}
+    c.innerHTML='';
+    orders.forEach(o=>{
+      const el=document.createElement('div');el.className='adm-row';
+      const doneWord=lang==='nl'?'Klaar':lang==='en'?'Done':'Pronto';
+      const newWord=lang==='nl'?'Nieuw':lang==='en'?'New':'Novo';
+      el.innerHTML=`<div><div class="adm-plek">Plek ${o.plek} ${o.type}</div><div class="adm-detail">${o.detail}</div></div><span class="adm-badge ${o.done?'adm-done':'adm-new'}" onclick="toggleDone('${o.id}',${!o.done})">${o.done?doneWord:newWord}</span>`;
+      c.appendChild(el);
+    });
+  } catch(e) {
+    console.error('renderAdmin error:',e);
+    if(!adminLoggedIn){showAdminLogin();}
+  }
 }
 async function toggleDone(id,done){
   await sb.from('orders').update({done}).eq('id',id);

@@ -411,21 +411,28 @@
         return;
       }
 
-      const detail = items.map(id => {
-        const breadItems = [
-          { id: 'b1', name: 'Wit broodje' },
-          { id: 'b2', name: 'Bruin broodje' },
-          { id: 'b3', name: 'Groot bruin brood' },
-          { id: 'b4', name: 'Pastel de nata' }
-        ];
-        const item = breadItems.find(i => i.id === id);
-        return `${breadQty[id]}× ${item?.name}`;
-      }).join(', ');
+      const breadItemsList = [
+        { id: 'b1', name: 'Wit broodje' },
+        { id: 'b2', name: 'Bruin broodje' },
+        { id: 'b3', name: 'Groot bruin brood' },
+        { id: 'b4', name: 'Pastel de nata' }
+      ];
+
+      const itemsData = items.map(id => {
+        const item = breadItemsList.find(i => i.id === id);
+        return { id, name: item?.name, qty: breadQty[id] };
+      });
+
+      const detail = itemsData.map(i => `${i.qty}× ${i.name}`).join(', ');
+      const pickupDate = document.getElementById('bread-day').value;
 
       const result = await saveOrder({
         plek: user.plek,
+        name: user.name,
         type: '🥖',
         detail,
+        order_date: pickupDate,
+        items: itemsData,
         done: false
       });
 
@@ -439,10 +446,31 @@
     }
 
     async function placeDinnerOrder() {
+      const adults = parseInt(document.getElementById('dinner-adults').value) || 0;
+      const kids = parseInt(document.getElementById('dinner-kids').value) || 0;
+      const veg = document.getElementById('dinner-veg').checked;
+      const gluten = document.getElementById('dinner-gluten').checked;
+      const note = document.getElementById('dinner-note').value;
+      const eventDate = document.getElementById('dinner-date').value;
+
+      const itemsData = {
+        adults,
+        kids,
+        vegetarian: veg,
+        glutenfree: gluten,
+        note: note || null
+      };
+
+      const dietLabel = [veg && 'Veg', gluten && 'Gluten', note].filter(Boolean).join(', ');
+      const detail = `${adults}v + ${kids}k${dietLabel ? ' · ' + dietLabel : ''}`;
+
       const result = await saveOrder({
         plek: user.plek,
+        name: user.name,
         type: '🍽️',
-        detail: `Dinner · ${document.getElementById('dinner-adults').value}v + ${document.getElementById('dinner-kids').value}k`,
+        detail,
+        order_date: eventDate,
+        items: itemsData,
         done: false
       });
 

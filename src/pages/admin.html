@@ -8,6 +8,197 @@
   <meta http-equiv="Expires" content="0">
   <title>Quinta Valbom - Beheer</title>
   <link rel="stylesheet" href="../css/style.css?v=20260506">
+  <style>
+    .admin-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .admin-tab {
+      flex: 1;
+      padding: 10px 8px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--text);
+      min-width: 80px;
+      margin-bottom: 0;
+    }
+    .admin-tab.active {
+      background: var(--qv);
+      color: white;
+      border-color: var(--qv);
+    }
+    .admin-section { display: none; }
+    .admin-section.active { display: block; }
+
+    .day-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .day-header {
+      padding: 14px 16px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+    }
+    .day-header:hover { background: var(--bg); }
+    .day-header.expanded { border-bottom: 1px solid var(--border); }
+    .day-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .day-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .day-arrow {
+      transition: transform 0.2s;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .day-arrow.expanded { transform: rotate(90deg); }
+
+    .day-body { display: none; padding: 16px; background: var(--bg); }
+    .day-body.expanded { display: block; }
+
+    .order-item {
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid var(--border);
+    }
+    .order-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+    .order-name {
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .order-plek {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .order-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .icon-btn {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      padding: 0;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      margin-bottom: 0;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .icon-btn.danger {
+      color: #c0392b;
+      border-color: #f5c6c6;
+    }
+    .icon-btn:active { background: var(--bg); }
+
+    .item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: 13px;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .item-row:last-child { border-bottom: none; }
+    .qty-input {
+      width: 60px;
+      padding: 4px 8px;
+      font-size: 13px;
+      text-align: center;
+      margin-bottom: 0;
+    }
+
+    .copy-section {
+      background: var(--qvl);
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    .copy-section pre {
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: white;
+      padding: 10px;
+      border-radius: 6px;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 8px;
+    }
+
+    .totals {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .total-card {
+      background: white;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .total-card strong { color: var(--qvt); }
+
+    .week-header {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--hint);
+      font-weight: 600;
+      margin: 16px 0 6px;
+      letter-spacing: 0.5px;
+    }
+    .week-header:first-child { margin-top: 0; }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--qvl);
+      color: var(--qvt);
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: 6px;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -35,25 +226,44 @@
 
       <!-- ADMIN CONTENT -->
       <div id="admin-content" style="display: none;">
-        <!-- BESTELLINGEN -->
-        <div class="card">
-          <h2 class="card-title">📋 Bestellingen</h2>
-          <div id="orders-list" style="max-height: 300px; overflow-y: auto;"></div>
+        <div class="admin-tabs">
+          <button class="admin-tab active" data-section="bread" onclick="switchAdminTab('bread')">🥖 Brood</button>
+          <button class="admin-tab" data-section="dinner" onclick="switchAdminTab('dinner')">🍽️ Diner</button>
+          <button class="admin-tab" data-section="other" onclick="switchAdminTab('other')">📋 Overig</button>
+          <button class="admin-tab" data-section="prices" onclick="switchAdminTab('prices')">💰 Prijzen</button>
+        </div>
+
+        <!-- BROOD -->
+        <div class="admin-section active" id="section-bread">
+          <div id="bread-days"></div>
+        </div>
+
+        <!-- DINER -->
+        <div class="admin-section" id="section-dinner">
+          <div id="dinner-weeks"></div>
+        </div>
+
+        <!-- OVERIG (was, bar, trips) -->
+        <div class="admin-section" id="section-other">
+          <div class="card">
+            <h2 class="card-title">📋 Overige bestellingen</h2>
+            <div id="other-orders"></div>
+          </div>
         </div>
 
         <!-- PRIJZEN -->
-        <div class="card">
-          <h2 class="card-title">💰 Menu & prijzen</h2>
-
-          <h3 style="font-size: 13px; color: var(--hint); text-transform: uppercase; margin: 16px 0 8px;">Broodjes</h3>
-          <div id="bread-prices"></div>
-
-          <h3 style="font-size: 13px; color: var(--hint); text-transform: uppercase; margin: 16px 0 8px;">Bar</h3>
-          <div id="bar-prices"></div>
+        <div class="admin-section" id="section-prices">
+          <div class="card">
+            <h2 class="card-title">💰 Menu & prijzen</h2>
+            <h3 style="font-size: 13px; color: var(--hint); text-transform: uppercase; margin: 16px 0 8px;">Broodjes</h3>
+            <div id="bread-prices"></div>
+            <h3 style="font-size: 13px; color: var(--hint); text-transform: uppercase; margin: 16px 0 8px;">Bar</h3>
+            <div id="bar-prices"></div>
+          </div>
         </div>
 
         <!-- LOGOUT -->
-        <div class="card" style="text-align: center;">
+        <div class="card" style="text-align: center; margin-top: 16px;">
           <button class="btn-secondary" onclick="adminLogout()">Uitloggen</button>
         </div>
       </div>
@@ -69,14 +279,27 @@
     let adminLoggedIn = sessionStorage.getItem('qv_admin') === '1';
     let pinAttempts = 0;
     let pinLockedUntil = 0;
+    let allOrders = [];
+    let expandedDays = new Set();
 
-    // Check if already logged in
-    if (adminLoggedIn) {
-      showAdminContent();
-      loadAdminData();
-    } else {
-      showLoginScreen();
-    }
+    const breadItemsList = [
+      { id: 'b1', name: 'Wit broodje' },
+      { id: 'b2', name: 'Bruin broodje' },
+      { id: 'b3', name: 'Groot bruin brood' },
+      { id: 'b4', name: 'Pastel de nata' }
+    ];
+
+    const nameMap = {
+      'b1': 'Wit broodje', 'b2': 'Bruin broodje',
+      'b3': 'Groot bruin brood', 'b4': 'Pastel de nata',
+      'w1': 'Lokale wijn wit', 'w2': 'Lokale wijn rosé',
+      'w3': 'Lokale wijn rood', 'w4': 'Super Bock',
+      'w5': 'Speciaal bier', 'w6': 'Frisdrank',
+      'w7': 'Super Bock 0.0'
+    };
+
+    if (adminLoggedIn) { showAdminContent(); loadAdminData(); }
+    else { showLoginScreen(); }
 
     function showLoginScreen() {
       document.getElementById('login-screen').style.display = 'block';
@@ -93,11 +316,9 @@
     function checkPin() {
       const now = Date.now();
       if (pinLockedUntil > now) {
-        const secondsLeft = Math.ceil((pinLockedUntil - now) / 1000);
-        showError('pin-error', `Te veel pogingen. Probeer over ${secondsLeft}s opnieuw.`);
+        showError('pin-error', `Geblokkeerd voor ${Math.ceil((pinLockedUntil - now)/1000)}s`);
         return;
       }
-
       const pin = document.getElementById('pin-input').value;
       if (pin === ADMIN_PIN) {
         adminLoggedIn = true;
@@ -108,56 +329,363 @@
       } else {
         pinAttempts++;
         if (pinAttempts >= 5) {
-          pinLockedUntil = now + 300000; // 5 minutes
-          showError('pin-error', 'Te veel pogingen. Geblokkeerd voor 5 minuten.');
+          pinLockedUntil = now + 300000;
+          showError('pin-error', 'Te veel pogingen. 5 minuten geblokkeerd.');
         } else {
-          showError('pin-error', `Onjuiste pincode. Nog ${5 - pinAttempts} poging${5 - pinAttempts > 1 ? 'en' : ''} over.`);
+          showError('pin-error', `Fout. Nog ${5 - pinAttempts} poging${5 - pinAttempts > 1 ? 'en' : ''}.`);
         }
         document.getElementById('pin-input').value = '';
       }
     }
 
+    function adminLogout() {
+      adminLoggedIn = false;
+      sessionStorage.removeItem('qv_admin');
+      document.getElementById('pin-input').value = '';
+      showLoginScreen();
+    }
+
     async function loadAdminData() {
-      await loadOrders();
+      const result = await getOrders();
+      if (result.success) {
+        allOrders = result.data || [];
+        renderBreadDays();
+        renderDinnerWeeks();
+        renderOtherOrders();
+      }
       await loadMenuPrices();
     }
 
-    async function loadOrders() {
-      const result = await getOrders();
-      const container = document.getElementById('orders-list');
+    function switchAdminTab(name) {
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.toggle('active', t.dataset.section === name));
+      document.querySelectorAll('.admin-section').forEach(s => s.classList.toggle('active', s.id === `section-${name}`));
+    }
 
-      if (!result.success) {
-        container.innerHTML = `<div class="error">Fout: ${result.error}</div>`;
+    // ===== BROOD =====
+    function renderBreadDays() {
+      const breadOrders = allOrders.filter(o => o.type === '🥖');
+      const container = document.getElementById('bread-days');
+
+      if (!breadOrders.length) {
+        container.innerHTML = '<div class="empty-state">Nog geen broodbestellingen.</div>';
         return;
       }
 
-      if (!result.data || result.data.length === 0) {
-        container.innerHTML = '<p style="color: var(--muted); font-size: 12px;">Nog geen bestellingen.</p>';
-        return;
-      }
+      // Group by order_date
+      const byDate = {};
+      breadOrders.forEach(o => {
+        const date = o.order_date || 'onbekend';
+        if (!byDate[date]) byDate[date] = [];
+        byDate[date].push(o);
+      });
 
+      const sortedDates = Object.keys(byDate).sort();
       container.innerHTML = '';
-      result.data.forEach(order => {
-        const row = document.createElement('div');
-        row.style.cssText = 'padding: 12px 0; border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start;';
-        row.innerHTML = `
-          <div>
-            <div style="font-weight: 600; font-size: 13px;">Plek ${order.plek} ${order.type}</div>
-            <div style="font-size: 12px; color: var(--muted); margin-top: 2px;">${order.detail}</div>
+
+      sortedDates.forEach(date => {
+        const orders = byDate[date];
+        const totalsByItem = {};
+        orders.forEach(o => {
+          (o.items || []).forEach(item => {
+            totalsByItem[item.id] = (totalsByItem[item.id] || 0) + (item.qty || 0);
+          });
+        });
+
+        const totalCount = Object.values(totalsByItem).reduce((a, b) => a + b, 0);
+        const dateLabel = date === 'onbekend' ? 'Onbekend' : formatDate(date);
+        const expanded = expandedDays.has('bread-' + date);
+
+        const card = document.createElement('div');
+        card.className = 'day-card';
+        card.innerHTML = `
+          <div class="day-header ${expanded ? 'expanded' : ''}" onclick="toggleDay('bread-${date}')">
+            <div>
+              <div class="day-title">📅 ${dateLabel} <span class="badge">${orders.length} ${orders.length === 1 ? 'bestelling' : 'bestellingen'}</span></div>
+              <div class="day-meta">${totalCount} broodjes totaal</div>
+            </div>
+            <div class="day-arrow ${expanded ? 'expanded' : ''}">▶</div>
           </div>
-          <button style="padding: 4px 10px; font-size: 11px; background: ${order.done ? 'var(--bg)' : 'var(--qvl)'}; color: ${order.done ? 'var(--hint)' : 'var(--qvt)'}; border: none; border-radius: 20px; cursor: pointer;" onclick="toggleOrderDone('${order.id}', ${!order.done})">${order.done ? 'Klaar' : 'Nieuw'}</button>
+          <div class="day-body ${expanded ? 'expanded' : ''}" id="day-bread-${date}">
+            ${renderBreadDayBody(date, orders, totalsByItem)}
+          </div>
         `;
-        container.appendChild(row);
+        container.appendChild(card);
       });
     }
 
-    async function toggleOrderDone(id, done) {
-      const result = await updateOrder(id, { done });
-      if (result.success) {
-        loadOrders();
-      } else {
-        showError('orders-error', result.error);
+    function renderBreadDayBody(date, orders, totalsByItem) {
+      const totalsHtml = breadItemsList
+        .filter(i => totalsByItem[i.id])
+        .map(i => `<div class="total-card"><span>${i.name}</span><strong>${totalsByItem[i.id]}×</strong></div>`)
+        .join('');
+
+      const copyText = `Bestelling Quinta Valbom — ${formatDate(date)}\n\n` +
+        breadItemsList.filter(i => totalsByItem[i.id]).map(i => `- ${totalsByItem[i.id]}× ${i.name}`).join('\n');
+
+      const ordersHtml = orders.map(o => `
+        <div class="order-item" id="order-${o.id}">
+          <div class="order-item-header">
+            <div>
+              <div class="order-name">${o.name || 'Gast'} <span class="order-plek">· Plek ${o.plek}</span></div>
+            </div>
+            <div class="order-actions">
+              <button class="icon-btn" onclick="editBreadOrder('${o.id}')" title="Bewerken">✏️</button>
+              <button class="icon-btn danger" onclick="deleteOrder('${o.id}')" title="Verwijderen">🗑️</button>
+            </div>
+          </div>
+          <div id="items-${o.id}">
+            ${(o.items || []).map(item => `
+              <div class="item-row">
+                <span>${item.name}</span>
+                <span>${item.qty}×</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      return `
+        <div class="totals">${totalsHtml}</div>
+        <div class="copy-section">
+          <div style="font-size: 12px; font-weight: 600; color: var(--qvt); margin-bottom: 6px;">📋 Voor de bakker:</div>
+          <pre id="copy-text-${date}">${copyText}</pre>
+          <button onclick="copyToClipboard('copy-text-${date}')" style="font-size: 13px; padding: 8px 14px; margin-bottom: 0;">📋 Kopiëren</button>
+        </div>
+        ${ordersHtml}
+      `;
+    }
+
+    async function editBreadOrder(orderId) {
+      const order = allOrders.find(o => o.id === orderId);
+      if (!order) return;
+
+      const itemsDiv = document.getElementById(`items-${orderId}`);
+      itemsDiv.innerHTML = breadItemsList.map(item => {
+        const existing = (order.items || []).find(i => i.id === item.id);
+        const qty = existing ? existing.qty : 0;
+        return `
+          <div class="item-row">
+            <span>${item.name}</span>
+            <input type="number" min="0" max="50" value="${qty}" class="qty-input" id="qty-${orderId}-${item.id}">
+          </div>
+        `;
+      }).join('') + `
+        <div style="display: flex; gap: 8px; margin-top: 10px;">
+          <button onclick="saveBreadEdit('${orderId}')" style="padding: 8px; font-size: 13px; margin-bottom: 0;">💾 Opslaan</button>
+          <button class="btn-secondary" onclick="renderBreadDays()" style="padding: 8px; font-size: 13px; margin-bottom: 0;">Annuleren</button>
+        </div>
+      `;
+    }
+
+    async function saveBreadEdit(orderId) {
+      const newItems = breadItemsList.map(item => {
+        const qty = parseInt(document.getElementById(`qty-${orderId}-${item.id}`).value) || 0;
+        return qty > 0 ? { id: item.id, name: item.name, qty } : null;
+      }).filter(Boolean);
+
+      if (!newItems.length) {
+        if (!confirm('Geen items meer over. Bestelling verwijderen?')) return;
+        return deleteOrder(orderId);
       }
+
+      const detail = newItems.map(i => `${i.qty}× ${i.name}`).join(', ');
+      const result = await updateOrder(orderId, { items: newItems, detail });
+
+      if (result.success) {
+        showToast('Bestelling bijgewerkt');
+        await loadAdminData();
+      } else {
+        alert('Fout: ' + result.error);
+      }
+    }
+
+    // ===== DINER =====
+    function renderDinnerWeeks() {
+      const dinnerOrders = allOrders.filter(o => o.type === '🍽️');
+      const container = document.getElementById('dinner-weeks');
+
+      if (!dinnerOrders.length) {
+        container.innerHTML = '<div class="empty-state">Nog geen dinerinschrijvingen.</div>';
+        return;
+      }
+
+      const byDate = {};
+      dinnerOrders.forEach(o => {
+        const date = o.order_date || 'onbekend';
+        if (!byDate[date]) byDate[date] = [];
+        byDate[date].push(o);
+      });
+
+      // Group dates by week
+      const byWeek = {};
+      Object.keys(byDate).forEach(date => {
+        if (date === 'onbekend') {
+          if (!byWeek['onbekend']) byWeek['onbekend'] = [];
+          byWeek['onbekend'].push(date);
+        } else {
+          const week = getWeekNumber(new Date(date));
+          if (!byWeek[week]) byWeek[week] = [];
+          byWeek[week].push(date);
+        }
+      });
+
+      container.innerHTML = '';
+      Object.keys(byWeek).sort((a, b) => a === 'onbekend' ? 1 : b === 'onbekend' ? -1 : a - b).forEach(week => {
+        const header = document.createElement('div');
+        header.className = 'week-header';
+        header.textContent = week === 'onbekend' ? 'Onbekend' : `Week ${week}`;
+        container.appendChild(header);
+
+        byWeek[week].sort().forEach(date => {
+          const orders = byDate[date];
+          const totalAdults = orders.reduce((sum, o) => sum + (o.items?.adults || 0), 0);
+          const totalKids = orders.reduce((sum, o) => sum + (o.items?.kids || 0), 0);
+          const totalPersons = totalAdults + totalKids;
+          const dateLabel = date === 'onbekend' ? 'Onbekend' : formatDate(date);
+          const expanded = expandedDays.has('dinner-' + date);
+
+          const goAhead = totalPersons >= 10 ? '✅' : '⚠️';
+          const status = totalPersons >= 10 ? 'Gaat door' : `Nog ${10 - totalPersons} nodig`;
+
+          const card = document.createElement('div');
+          card.className = 'day-card';
+          card.innerHTML = `
+            <div class="day-header ${expanded ? 'expanded' : ''}" onclick="toggleDay('dinner-${date}')">
+              <div>
+                <div class="day-title">${goAhead} ${dateLabel} <span class="badge">${totalPersons}/20 pers.</span></div>
+                <div class="day-meta">${totalAdults}v + ${totalKids}k · ${status}</div>
+              </div>
+              <div class="day-arrow ${expanded ? 'expanded' : ''}">▶</div>
+            </div>
+            <div class="day-body ${expanded ? 'expanded' : ''}" id="day-dinner-${date}">
+              ${renderDinnerDayBody(date, orders)}
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      });
+    }
+
+    function renderDinnerDayBody(date, orders) {
+      return orders.map(o => {
+        const items = o.items || {};
+        const dietBadges = [
+          items.vegetarian && '🥗 Veg',
+          items.glutenfree && '🌾 Glutenvrij'
+        ].filter(Boolean).join(' · ');
+
+        return `
+          <div class="order-item" id="order-${o.id}">
+            <div class="order-item-header">
+              <div>
+                <div class="order-name">${o.name || 'Gast'} <span class="order-plek">· Plek ${o.plek}</span></div>
+                <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">${dietBadges || ''}</div>
+              </div>
+              <div class="order-actions">
+                <button class="icon-btn" onclick="editDinnerOrder('${o.id}')" title="Bewerken">✏️</button>
+                <button class="icon-btn danger" onclick="deleteOrder('${o.id}')" title="Verwijderen">🗑️</button>
+              </div>
+            </div>
+            <div id="items-${o.id}">
+              <div class="item-row"><span>Volwassenen</span><span>${items.adults || 0}</span></div>
+              <div class="item-row"><span>Kinderen</span><span>${items.kids || 0}</span></div>
+              ${items.note ? `<div style="font-size: 12px; color: var(--muted); margin-top: 8px; font-style: italic;">📝 ${items.note}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function editDinnerOrder(orderId) {
+      const order = allOrders.find(o => o.id === orderId);
+      if (!order) return;
+      const items = order.items || {};
+
+      document.getElementById(`items-${orderId}`).innerHTML = `
+        <div class="item-row">
+          <span>Volwassenen</span>
+          <input type="number" min="0" max="20" value="${items.adults || 0}" class="qty-input" id="adults-${orderId}">
+        </div>
+        <div class="item-row">
+          <span>Kinderen</span>
+          <input type="number" min="0" max="20" value="${items.kids || 0}" class="qty-input" id="kids-${orderId}">
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 10px;">
+          <button onclick="saveDinnerEdit('${orderId}')" style="padding: 8px; font-size: 13px; margin-bottom: 0;">💾 Opslaan</button>
+          <button class="btn-secondary" onclick="renderDinnerWeeks()" style="padding: 8px; font-size: 13px; margin-bottom: 0;">Annuleren</button>
+        </div>
+      `;
+    }
+
+    async function saveDinnerEdit(orderId) {
+      const order = allOrders.find(o => o.id === orderId);
+      const adults = parseInt(document.getElementById(`adults-${orderId}`).value) || 0;
+      const kids = parseInt(document.getElementById(`kids-${orderId}`).value) || 0;
+
+      if (adults + kids === 0) {
+        if (!confirm('Geen personen meer. Reservering verwijderen?')) return;
+        return deleteOrder(orderId);
+      }
+
+      const newItems = { ...(order.items || {}), adults, kids };
+      const dietLabel = [newItems.vegetarian && 'Veg', newItems.glutenfree && 'Gluten', newItems.note].filter(Boolean).join(', ');
+      const detail = `${adults}v + ${kids}k${dietLabel ? ' · ' + dietLabel : ''}`;
+
+      const result = await updateOrder(orderId, { items: newItems, detail });
+      if (result.success) {
+        showToast('Reservering bijgewerkt');
+        await loadAdminData();
+      } else {
+        alert('Fout: ' + result.error);
+      }
+    }
+
+    // ===== OVERIG =====
+    function renderOtherOrders() {
+      const others = allOrders.filter(o => !['🥖', '🍽️'].includes(o.type));
+      const container = document.getElementById('other-orders');
+
+      if (!others.length) {
+        container.innerHTML = '<div class="empty-state">Geen overige bestellingen.</div>';
+        return;
+      }
+
+      container.innerHTML = others.map(o => `
+        <div style="padding: 10px 0; border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <div style="font-weight: 600; font-size: 13px;">${o.name || 'Gast'} · Plek ${o.plek} ${o.type}</div>
+            <div style="font-size: 12px; color: var(--muted); margin-top: 2px;">${o.detail}</div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button class="icon-btn" onclick="toggleOrderDone('${o.id}', ${!o.done})">${o.done ? '✓' : '○'}</button>
+            <button class="icon-btn danger" onclick="deleteOrder('${o.id}')">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function toggleOrderDone(id, done) {
+      await updateOrder(id, { done });
+      loadAdminData();
+    }
+
+    // ===== ALGEMEEN =====
+    async function deleteOrder(id) {
+      if (!confirm('Weet je zeker dat je deze bestelling wilt verwijderen?')) return;
+      const { error } = await sb.from('orders').delete().eq('id', id);
+      if (!error) {
+        showToast('Verwijderd');
+        await loadAdminData();
+      } else {
+        alert('Fout: ' + error.message);
+      }
+    }
+
+    function toggleDay(key) {
+      if (expandedDays.has(key)) expandedDays.delete(key);
+      else expandedDays.add(key);
+      renderBreadDays();
+      renderDinnerWeeks();
     }
 
     async function loadMenuPrices() {
@@ -172,48 +700,41 @@
       result.data.forEach(item => {
         const row = document.createElement('div');
         row.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 0.5px solid var(--border);';
-
-        const nameMap = {
-          'b1': 'Wit broodje',
-          'b2': 'Bruin broodje',
-          'b3': 'Groot bruin brood',
-          'b4': 'Pastel de nata',
-          'w1': 'Lokale wijn wit',
-          'w2': 'Lokale wijn rosé',
-          'w3': 'Lokale wijn rood',
-          'w4': 'Super Bock',
-          'w5': 'Speciaal bier',
-          'w6': 'Frisdrank',
-          'w7': 'Super Bock 0.0'
-        };
-
         row.innerHTML = `
           <span style="font-size: 13px;">${nameMap[item.id] || item.id}</span>
-          <input type="number" step="0.10" min="0" value="${item.price.toFixed(2)}" style="width: 70px; padding: 4px; margin-bottom: 0;" onchange="updatePrice('${item.id}', this.value)">
+          <input type="number" step="0.10" min="0" value="${item.price.toFixed(2)}" style="width: 80px; padding: 4px; margin-bottom: 0;" onchange="updatePrice('${item.id}', this.value)">
         `;
-
-        if (item.category === 'bread') {
-          breadContainer.appendChild(row);
-        } else {
-          barContainer.appendChild(row);
-        }
+        if (item.category === 'bread') breadContainer.appendChild(row);
+        else barContainer.appendChild(row);
       });
     }
 
     async function updatePrice(id, price) {
       const result = await updateMenuPrice(id, parseFloat(price) || 0);
-      if (result.success) {
-        showToast('Prijs opgeslagen');
-      } else {
-        showError('price-error', result.error);
-      }
+      if (result.success) showToast('Prijs opgeslagen');
     }
 
-    function adminLogout() {
-      adminLoggedIn = false;
-      sessionStorage.removeItem('qv_admin');
-      document.getElementById('pin-input').value = '';
-      showLoginScreen();
+    // Helpers
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' });
+    }
+
+    function getWeekNumber(d) {
+      const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+      const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+      return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+    }
+
+    async function copyToClipboard(elementId) {
+      const text = document.getElementById(elementId).textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Gekopieerd! 📋');
+      } catch (e) {
+        alert('Kopieer dit:\n\n' + text);
+      }
     }
 
     function showToast(msg) {
@@ -225,15 +746,7 @@
 
     function showError(id, msg) {
       const el = document.getElementById(id);
-      if (!el) {
-        const newEl = document.createElement('div');
-        newEl.id = id;
-        newEl.className = 'error';
-        newEl.textContent = msg;
-        newEl.style.marginBottom = '12px';
-        document.getElementById('main').insertBefore(newEl, document.getElementById('main').firstChild);
-        setTimeout(() => newEl.remove(), 3500);
-      } else {
+      if (el) {
         el.textContent = msg;
         el.style.display = 'block';
         setTimeout(() => { el.style.display = 'none'; }, 3500);

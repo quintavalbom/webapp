@@ -329,15 +329,34 @@ input[type=number]{width:90px}
   <!-- BEHEER -->
   <div class="sec" id="sec-admin">
     <div class="sec-head"><div class="sec-head-ico">⚙️</div><div><div class="sec-head-title" id="adm-title">Beheer <span class="staff-badge">Staff</span></div><div class="sec-head-sub" id="adm-sub">Bestellingen overzicht</div></div></div>
-    <div class="card">
-      <div id="adm-list"></div>
+
+    <!-- LOGIN SCHERM -->
+    <div id="admin-login">
+      <div class="card" style="text-align:center;padding:28px 20px">
+        <div style="font-size:40px;margin-bottom:12px">🔐</div>
+        <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px">Beheer toegang</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:20px">Voer de pincode in</div>
+        <input type="password" id="pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••" style="text-align:center;font-size:24px;letter-spacing:8px;width:160px;display:block;margin:0 auto 12px" onkeydown="if(event.key==='Enter')checkPin()">
+        <button class="sub-btn" onclick="checkPin()" style="margin-top:4px">Inloggen</button>
+        <div class="err" id="pin-err" style="text-align:center;margin-top:8px"></div>
+      </div>
     </div>
-    <div class="card">
-      <div class="card-title" id="me-title">Menu & prijzen</div>
-      <div class="divlbl" id="me-bread-lbl">Broodjes</div>
-      <div id="menu-edit-bread"></div>
-      <div class="divlbl" id="me-bar-lbl">Bar</div>
-      <div id="menu-edit-bar"></div>
+
+    <!-- ADMIN INHOUD -->
+    <div id="admin-content" style="display:none">
+      <div class="card">
+        <div id="adm-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-title" id="me-title">Menu & prijzen</div>
+        <div class="divlbl" id="me-bread-lbl">Broodjes</div>
+        <div id="menu-edit-bread"></div>
+        <div class="divlbl" id="me-bar-lbl">Bar</div>
+        <div id="menu-edit-bar"></div>
+      </div>
+      <div class="card" style="text-align:center">
+        <button onclick="adminLogout()" style="background:none;border:1px solid var(--border2);border-radius:10px;padding:10px 20px;font-size:13px;color:var(--muted);cursor:pointer;width:100%">Uitloggen</button>
+      </div>
     </div>
   </div>
 
@@ -380,7 +399,13 @@ input[type=number]{width:90px}
 
 </div><!-- end #app -->
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ===================== SUPABASE =====================
+const SUPA_URL='https://psqvxtrsgungbsydthua.supabase.co';
+const SUPA_KEY='sb_publishable_UH897zzftydEMxvmW-gFMA_mGYSFiFE';
+const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+
 // ===================== DATA =====================
 const QV={
 nl:{
@@ -604,7 +629,8 @@ const barMenu=[
 const washSlots=[{id:'s1',time:'09:00–11:00'},{id:'s2',time:'11:00–13:00'},{id:'s3',time:'16:00–18:00'}];
 
 // ===================== STATE =====================
-let lang='nl', bQty={}, barQty={}, selWash=null, washBooked={}, orders=[];
+const ADMIN_PIN='0000';
+let lang='nl', bQty={}, barQty={}, selWash=null, orders=[], adminLoggedIn=sessionStorage.getItem('qv_admin')==='1', pinAttempts=0, pinLockedUntil=0;
 
 // auto-detect pitch from URL ?plek=N
 const urlPlek = new URLSearchParams(location.search).get('plek');
@@ -621,6 +647,10 @@ function getNextDinnerDays(count){
   const days=[],d=new Date();
   while(days.length<count){d.setDate(d.getDate()+1);if(d.getDay()===2||d.getDay()===5)days.push(new Date(d));}
   return days;
+}
+function getWashDateStr(idx){
+  const days=getNextDays(false,7);
+  return days[parseInt(idx)].toISOString().split('T')[0];
 }
 function fillSel(id,opts,ph){
   const s=document.getElementById(id);s.innerHTML='';
@@ -679,12 +709,14 @@ function renderKidAges(){
   }
 }
 
-function renderWashSlots(){
+async function renderWashSlots(){
   const dayIdx=document.getElementById('w-day').value;
-  const key='d'+dayIdx;if(!washBooked[key])washBooked[key]={};
+  const dateStr=getWashDateStr(dayIdx);
+  const {data}=await sb.from('wash_bookings').select('slot_id').eq('date',dateStr);
+  const bookedSlots=new Set((data||[]).map(r=>r.slot_id));
   const L=QV[lang];const c=document.getElementById('wash-slots');c.innerHTML='';
   washSlots.forEach(s=>{
-    const taken=washBooked[key][s.id];
+    const taken=bookedSlots.has(s.id);
     const on=selWash===s.id;
     const el=document.createElement('div');
     el.className='slot'+(taken?' taken':'')+(on?' on':'');
@@ -723,38 +755,100 @@ function renderInfo(){
   });
 }
 
-function renderAdmin(){
-  const L=QV[lang];const c=document.getElementById('adm-list');
+async function renderAdmin(){
+  const L=QV[lang];
+  if(!adminLoggedIn){showAdminLogin();return;}
+  showAdminContent();
+  const c=document.getElementById('adm-list');
+  c.innerHTML=`<p style="font-size:12px;color:var(--muted)">Laden...</p>`;
+  const {data}=await sb.from('orders').select('*').order('created_at',{ascending:false});
+  orders=data||[];
   if(!orders.length){c.innerHTML=`<p style="font-size:13px;color:var(--muted);padding:8px 0">${L.admEmpty}</p>`;return;}
   c.innerHTML='';
-  orders.forEach((o,i)=>{
+  orders.forEach(o=>{
     const el=document.createElement('div');el.className='adm-row';
     const doneWord=lang==='nl'?'Klaar':lang==='en'?'Done':'Pronto';
     const newWord=lang==='nl'?'Nieuw':lang==='en'?'New':'Novo';
-    el.innerHTML=`<div><div class="adm-plek">Plek ${o.plek} ${o.type}</div><div class="adm-detail">${o.detail}</div></div><span class="adm-badge ${o.done?'adm-done':'adm-new'}" onclick="toggleDone(${i})">${o.done?doneWord:newWord}</span>`;
+    el.innerHTML=`<div><div class="adm-plek">Plek ${o.plek} ${o.type}</div><div class="adm-detail">${o.detail}</div></div><span class="adm-badge ${o.done?'adm-done':'adm-new'}" onclick="toggleDone('${o.id}',${!o.done})">${o.done?doneWord:newWord}</span>`;
     c.appendChild(el);
   });
 }
-function toggleDone(i){orders[i].done=!orders[i].done;renderAdmin();}
+async function toggleDone(id,done){
+  await sb.from('orders').update({done}).eq('id',id);
+  renderAdmin();
+}
+function showAdminLogin(){
+  document.getElementById('admin-login').style.display='block';
+  document.getElementById('admin-content').style.display='none';
+}
+function showAdminContent(){
+  document.getElementById('admin-login').style.display='none';
+  document.getElementById('admin-content').style.display='block';
+}
+function checkPin(){
+  const now=Date.now();
+  if(pinLockedUntil>now){
+    const secondsLeft=Math.ceil((pinLockedUntil-now)/1000);
+    showErr('pin-err',`Te veel pogingen. Probeer over ${secondsLeft} seconde${secondsLeft>1?'n':''} opnieuw.`);
+    document.getElementById('pin-input').value='';
+    return;
+  }
+  const val=document.getElementById('pin-input').value;
+  if(val===ADMIN_PIN){
+    adminLoggedIn=true;
+    sessionStorage.setItem('qv_admin','1');
+    pinAttempts=0;
+    renderAdmin();
+    renderMenuEdit();
+  } else {
+    pinAttempts++;
+    if(pinAttempts>=5){
+      pinLockedUntil=now+300000;
+      showErr('pin-err','Te veel pogingen. Geblokkeerd voor 5 minuten.');
+    } else {
+      showErr('pin-err',`Onjuiste pincode. Nog ${5-pinAttempts} poging${5-pinAttempts>1?'en':''} over.`);
+    }
+    document.getElementById('pin-input').value='';
+  }
+}
+function adminLogout(){
+  adminLoggedIn=false;
+  sessionStorage.removeItem('qv_admin');
+  showAdminLogin();
+}
 
 function renderMenuEdit(){
-  const L=QV[lang];
   const c=document.getElementById('menu-edit-bread');c.innerHTML='';
   breadMenu.forEach(item=>{
     const el=document.createElement('div');el.className='me-row';
-    el.innerHTML=`<span>${item.name[lang]}</span><input type="number" step="0.10" min="0" value="${item.price.toFixed(2)}" class="me-inp" onchange="breadMenu.find(b=>b.id==='${item.id}').price=parseFloat(this.value)||0;renderBreadItems()">`;
+    el.innerHTML=`<span>${item.name[lang]}</span><input type="number" step="0.10" min="0" value="${item.price.toFixed(2)}" class="me-inp" onchange="updatePrice('${item.id}',this.value,'bread')">`;
     c.appendChild(el);
   });
   const c2=document.getElementById('menu-edit-bar');c2.innerHTML='';
   barMenu.forEach(item=>{
     const el=document.createElement('div');el.className='me-row';
-    el.innerHTML=`<span>${item.name[lang]}</span><input type="number" step="0.10" min="0" value="${item.price.toFixed(2)}" class="me-inp" onchange="barMenu.find(b=>b.id==='${item.id}').price=parseFloat(this.value)||0;renderBarItems()">`;
+    el.innerHTML=`<span>${item.name[lang]}</span><input type="number" step="0.10" min="0" value="${item.price.toFixed(2)}" class="me-inp" onchange="updatePrice('${item.id}',this.value,'bar')">`;
     c2.appendChild(el);
+  });
+}
+async function updatePrice(id,value,category){
+  const price=parseFloat(value)||0;
+  const menu=category==='bread'?breadMenu:barMenu;
+  const item=menu.find(b=>b.id===id);
+  if(item)item.price=price;
+  await sb.from('menu_items').update({price}).eq('id',id);
+  if(category==='bread')renderBreadItems();else renderBarItems();
+}
+async function loadMenuPrices(){
+  const {data}=await sb.from('menu_items').select('*');
+  if(data)data.forEach(row=>{
+    const item=[...breadMenu,...barMenu].find(i=>i.id===row.id);
+    if(item)item.price=parseFloat(row.price);
   });
 }
 
 // ===================== ORDERS =====================
-function doOrder(type){
+async function doOrder(type){
   const L=QV[lang];
   if(type==='bread'){
     const plek=document.getElementById('b-plek').value;
@@ -763,8 +857,8 @@ function doOrder(type){
     if(!items.length){showErr('b-err',L.errItems);return;}
     const day=document.getElementById('b-day').options[document.getElementById('b-day').selectedIndex].text;
     const detail=items.map(b=>`${bQty[b.id]}× ${b.name.nl}`).join(', ')+' | '+day;
-    orders.unshift({plek,type:'🥖',detail,done:false});
-    bQty={};renderBreadItems();showToast(L.toasts[0]);renderAdmin();
+    await sb.from('orders').insert({plek:parseInt(plek),type:'🥖',detail,done:false});
+    bQty={};renderBreadItems();showToast(L.toasts[0]);
   } else if(type==='dinner'){
     const plek=document.getElementById('d-plek').value;
     if(!plek){showErr('d-err',L.errPlek);return;}
@@ -777,18 +871,20 @@ function doOrder(type){
     const note=document.getElementById('d-note').value;
     const diet=[veg&&'Veg',gluten&&'Gluten',lactose&&'Lactose',note].filter(Boolean).join(', ');
     const detail=`${date} · ${adults}v + ${kids}k${diet?' · '+diet:''}`;
-    orders.unshift({plek,type:'🍽️',detail,done:false});showToast(L.toasts[1]);renderAdmin();
+    await sb.from('orders').insert({plek:parseInt(plek),type:'🍽️',detail,done:false});
+    showToast(L.toasts[1]);
   } else if(type==='wash'){
     const plek=document.getElementById('w-plek').value;
     if(!plek){showErr('w-err',L.errPlek);return;}
     if(!selWash){showErr('w-err',L.errSlot);return;}
     const dayIdx=document.getElementById('w-day').value;
-    const key='d'+dayIdx;if(!washBooked[key])washBooked[key]={};
-    washBooked[key][selWash]=true;
+    const dateStr=getWashDateStr(dayIdx);
+    const {error}=await sb.from('wash_bookings').insert({date:dateStr,slot_id:selWash,plek:parseInt(plek)});
+    if(error){showErr('w-err','Dit slot is al bezet.');return;}
     const dayTxt=document.getElementById('w-day').options[document.getElementById('w-day').selectedIndex].text;
     const slotTxt=washSlots.find(s=>s.id===selWash).time;
-    orders.unshift({plek,type:'🧺',detail:`${dayTxt} ${slotTxt} · € 6,00`,done:false});
-    selWash=null;renderWashSlots();showToast(L.toasts[2]);renderAdmin();
+    await sb.from('orders').insert({plek:parseInt(plek),type:'🧺',detail:`${dayTxt} ${slotTxt} · € 6,00`,done:false});
+    selWash=null;renderWashSlots();showToast(L.toasts[2]);
   } else if(type==='bar'){
     const plek=document.getElementById('bar-plek').value;
     if(!plek){showErr('bar-err',L.errPlek);return;}
@@ -796,8 +892,8 @@ function doOrder(type){
     if(!items.length){showErr('bar-err',L.errItems);return;}
     const note=document.getElementById('bar-note').value;
     const detail=items.map(b=>`${barQty[b.id]}× ${b.name.nl}`).join(', ')+(note?' · '+note:'');
-    orders.unshift({plek,type:'🍷',detail,done:false});
-    barQty={};renderBarItems();showToast(L.toasts[3]);renderAdmin();
+    await sb.from('orders').insert({plek:parseInt(plek),type:'🍷',detail,done:false});
+    barQty={};renderBarItems();showToast(L.toasts[3]);
   } else if(type==='exp'){
     const plek=document.getElementById('exp-plek').value;
     if(!plek){showErr('exp-err',L.errPlek);return;}
@@ -806,7 +902,8 @@ function doOrder(type){
     const date=document.getElementById('exp-date').value;
     const note=document.getElementById('exp-note').value;
     const detail=`${choice} · ${pers}p${date?' · '+date:''}${note?' · '+note:''}`;
-    orders.unshift({plek,type:'🗺️',detail,done:false});showToast(L.toasts[4]);renderAdmin();
+    await sb.from('orders').insert({plek:parseInt(plek),type:'🗺️',detail,done:false});
+    showToast(L.toasts[4]);
   }
 }
 
@@ -818,6 +915,7 @@ function showT(name){
     document.getElementById('nav-'+t).classList.toggle('on',t===name);
   });
   document.getElementById('main').scrollTo(0,0);
+  if(name==='admin'){renderAdmin();renderMenuEdit();}
 }
 
 // ===================== LANG =====================
@@ -887,8 +985,12 @@ function checkInstallBanner(){
 }
 
 // ===================== INIT =====================
-applyLang();
-checkInstallBanner();
+async function init(){
+  await loadMenuPrices();
+  applyLang();
+  checkInstallBanner();
+}
+init();
 </script>
 </body>
 </html>

@@ -116,6 +116,39 @@ async function updateFeatureFlag(key, enabled) {
   }
 }
 
+async function saveGuest(name, plek) {
+  try {
+    const { data, error } = await sb.from('guests').upsert({ plek, name, last_seen: new Date().toISOString() });
+    if (error) throw error;
+    return { success: true, data };
+  } catch (e) {
+    console.error('Guest save error:', e);
+    return { success: false, error: e.message };
+  }
+}
+
+async function getGuests() {
+  try {
+    const { data, error } = await sb.from('guests').select('*').order('plek', { ascending: true });
+    if (error) throw error;
+    return { success: true, data: data || [] };
+  } catch (e) {
+    console.error('Guests fetch error:', e);
+    return { success: false, error: e.message, data: [] };
+  }
+}
+
+async function deleteGuest(plek) {
+  try {
+    const { data, error } = await sb.from('guests').delete().eq('plek', plek);
+    if (error) throw error;
+    return { success: true, data };
+  } catch (e) {
+    console.error('Guest delete error:', e);
+    return { success: false, error: e.message };
+  }
+}
+
 async function getWashBookings(date) {
   try {
     const { data, error } = await sb.from('wash_bookings').select('slot_id').eq('date', date);

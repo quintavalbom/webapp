@@ -271,6 +271,7 @@
           <button class="admin-tab active" data-section="bread" onclick="switchAdminTab('bread')">🥖 Brood</button>
           <button class="admin-tab" data-section="dinner" onclick="switchAdminTab('dinner')">🍽️ Diner</button>
           <button class="admin-tab" data-section="other" onclick="switchAdminTab('other')">📋 Overig</button>
+          <button class="admin-tab" data-section="guests" onclick="switchAdminTab('guests')">👥 Gasten</button>
           <button class="admin-tab" data-section="prices" onclick="switchAdminTab('prices')">💰 Prijzen</button>
           <button class="admin-tab" data-section="features" onclick="switchAdminTab('features')">🎛️ Functies</button>
         </div>
@@ -290,6 +291,15 @@
           <div class="card">
             <h2 class="card-title">📋 Overige bestellingen</h2>
             <div id="other-orders"></div>
+          </div>
+        </div>
+
+        <!-- GASTEN -->
+        <div class="admin-section" id="section-guests">
+          <div class="card">
+            <h2 class="card-title">👥 Actieve gasten</h2>
+            <p style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">Verwijder een gast bij vertrek zodat de plek vrij is voor een nieuwe gast.</p>
+            <div id="guests-list"></div>
           </div>
         </div>
 
@@ -394,7 +404,45 @@
         renderOtherOrders();
       }
       try { await loadMenuPrices(); } catch (e) { console.error(e); }
+      try { await loadGuests(); } catch (e) { console.error(e); }
       try { await loadFeatureToggles(); } catch (e) { console.error(e); }
+    }
+
+    async function loadGuests() {
+      const result = await getGuests();
+      const container = document.getElementById('guests-list');
+      if (!result.success) {
+        container.innerHTML = `<div class="error">Fout: ${result.error}</div>`;
+        return;
+      }
+      const guests = result.data || [];
+      if (!guests.length) {
+        container.innerHTML = '<div class="empty-state">Nog geen actieve gasten.</div>';
+        return;
+      }
+      container.innerHTML = guests.map(g => {
+        const since = new Date(g.created_at).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' });
+        return `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 0.5px solid var(--border); gap: 12px;">
+            <div>
+              <div style="font-weight: 600; font-size: 14px;">Plek ${g.plek} · ${g.name}</div>
+              <div style="font-size: 11px; color: var(--muted); margin-top: 2px;">Sinds ${since}</div>
+            </div>
+            <button class="icon-btn danger" onclick="removeGuest(${g.plek}, '${g.name.replace(/'/g, '')}')">🗑️</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function removeGuest(plek, name) {
+      if (!confirm(`Verwijder gast "${name}" op plek ${plek}? De plek wordt dan weer vrij.`)) return;
+      const result = await deleteGuest(plek);
+      if (result.success) {
+        showToast('Gast uitgecheckt');
+        loadGuests();
+      } else {
+        alert('Fout: ' + result.error);
+      }
     }
 
     async function loadFeatureToggles() {

@@ -76,7 +76,7 @@
       plekSelect.value = urlParams.get('plek');
     }
 
-    document.getElementById('onboarding-form').addEventListener('submit', (e) => {
+    document.getElementById('onboarding-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('name').value.trim();
       const plek = document.getElementById('plek').value;
@@ -89,6 +89,13 @@
 
       // Save to localStorage
       localStorage.setItem('qv_user', JSON.stringify({ name, plek: parseInt(plek) }));
+
+      // Save to Supabase (best effort, don't block on errors)
+      try {
+        await saveGuest(name, parseInt(plek));
+      } catch (err) {
+        console.error('Could not save guest:', err);
+      }
 
       // Redirect to app
       window.location.href = './app.html?plek=' + plek;

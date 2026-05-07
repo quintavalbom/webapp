@@ -533,14 +533,17 @@
           const expanded = expandedDays.has('dinner-' + date);
 
           const goAhead = totalPersons >= 10 ? '✅' : '⚠️';
-          const status = totalPersons >= 10 ? 'Gaat door' : `Nog ${10 - totalPersons} nodig`;
+          let status;
+          if (totalPersons >= 18) status = 'Vol (kan eventueel +2 erbij)';
+          else if (totalPersons >= 10) status = `Gaat door · nog ${18 - totalPersons} plek${18 - totalPersons === 1 ? '' : 'ken'}`;
+          else status = `Nog ${10 - totalPersons} nodig (min.)`;
 
           const card = document.createElement('div');
           card.className = 'day-card';
           card.innerHTML = `
             <div class="day-header ${expanded ? 'expanded' : ''}" onclick="toggleDay('dinner-${date}')">
               <div>
-                <div class="day-title">${goAhead} ${dateLabel} <span class="badge">${totalPersons}/20 pers.</span></div>
+                <div class="day-title">${goAhead} ${dateLabel} <span class="badge">${totalPersons}/18 pers.</span></div>
                 <div class="day-meta">${totalAdults}v + ${totalKids}k · ${status}</div>
               </div>
               <div class="day-arrow ${expanded ? 'expanded' : ''}">▶</div>

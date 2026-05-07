@@ -198,6 +198,47 @@
       border-radius: 10px;
       margin-left: 6px;
     }
+
+    .toggle {
+      position: relative;
+      display: inline-block;
+      width: 52px;
+      height: 28px;
+      flex-shrink: 0;
+      margin: 0;
+    }
+    .toggle input {
+      position: absolute;
+      opacity: 0;
+      width: 0 !important;
+      height: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      margin: 0 !important;
+    }
+    .toggle .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #ccc;
+      border-radius: 28px;
+      transition: background 0.2s;
+    }
+    .toggle .knob {
+      position: absolute;
+      height: 22px;
+      width: 22px;
+      left: 3px;
+      top: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: left 0.2s;
+    }
+    .toggle.on .slider { background: var(--qv); }
+    .toggle.on .knob { left: 27px; }
   </style>
 </head>
 <body>
@@ -344,8 +385,7 @@
     }
 
     async function loadAdminData() {
-      await loadMenuPrices();
-      await loadFeatureToggles();
+      // Load orders first so they always show even if other queries fail
       const result = await getOrders();
       if (result.success) {
         allOrders = result.data || [];
@@ -353,6 +393,8 @@
         renderDinnerWeeks();
         renderOtherOrders();
       }
+      try { await loadMenuPrices(); } catch (e) { console.error(e); }
+      try { await loadFeatureToggles(); } catch (e) { console.error(e); }
     }
 
     async function loadFeatureToggles() {
@@ -371,11 +413,9 @@
               <div style="font-size: 14px; font-weight: 600;">${f.label}</div>
               <div style="font-size: 12px; color: var(--muted); margin-top: 2px;">${f.desc}</div>
             </div>
-            <label style="position: relative; display: inline-block; width: 52px; height: 28px; flex-shrink: 0; margin: 0;">
-              <input type="checkbox" ${isOn ? 'checked' : ''} onchange="toggleFeature('${f.key}', this.checked)" style="opacity: 0; width: 0; height: 0; margin: 0;">
-              <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: ${isOn ? 'var(--qv)' : '#ccc'}; border-radius: 28px; transition: 0.2s;">
-                <span style="position: absolute; height: 22px; width: 22px; left: ${isOn ? '27px' : '3px'}; top: 3px; background: white; border-radius: 50%; transition: 0.2s;"></span>
-              </span>
+            <label class="toggle ${isOn ? 'on' : ''}">
+              <input type="checkbox" ${isOn ? 'checked' : ''} onchange="toggleFeature('${f.key}', this.checked)">
+              <span class="slider"><span class="knob"></span></span>
             </label>
           </div>
         `;

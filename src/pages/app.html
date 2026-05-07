@@ -360,6 +360,8 @@
     let barQty = {};
     let selectedWashSlot = null;
     let menuData = {};
+    let breadItemsList = [];
+    let barItemsList = [];
 
     document.getElementById('user-info').textContent = `Plek ${user.plek} · ${user.name}`;
 
@@ -374,8 +376,16 @@
       const result = await getMenuItems();
       if (result.success) {
         menuData = {};
-        result.data.forEach(item => {
-          menuData[item.id] = { name: item.id, price: item.price, category: item.category };
+        breadItemsList = [];
+        barItemsList = [];
+        const sorted = (result.data || []).sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+        sorted.forEach(item => {
+          menuData[item.id] = { name: item.name || item.id, price: parseFloat(item.price), category: item.category };
+          if (item.category === 'bread') {
+            breadItemsList.push({ id: item.id, name: item.name || item.id, price: parseFloat(item.price) });
+          } else if (item.category === 'bar') {
+            barItemsList.push({ id: item.id, name: item.name || item.id, price: parseFloat(item.price) });
+          }
         });
         renderBreadItems();
         renderBarItems();
@@ -469,21 +479,13 @@
     function renderBreadItems() {
       const container = document.getElementById('bread-items');
       container.innerHTML = '';
-      const breadItems = [
-        { id: 'b1', name: 'Wit broodje', price: 0.50 },
-        { id: 'b2', name: 'Bruin broodje', price: 0.50 },
-        { id: 'b3', name: 'Groot bruin brood', price: 4.00 },
-        { id: 'b4', name: 'Pastel de nata', price: 2.50 }
-      ];
-
-      breadItems.forEach(item => {
+      breadItemsList.forEach(item => {
         const row = document.createElement('div');
         row.className = 'q-row';
-        const price = menuData[item.id]?.price || item.price;
         row.innerHTML = `
           <div>${item.name}</div>
           <div class="q-ctrl">
-            <span style="color: var(--muted); font-size: 12px;">€ ${price.toFixed(2)}</span>
+            <span style="color: var(--muted); font-size: 12px;">€ ${item.price.toFixed(2)}</span>
             <button class="q-btn" onclick="changeBreadQty('${item.id}', -1)">−</button>
             <span class="q-num">${breadQty[item.id] || 0}</span>
             <button class="q-btn" onclick="changeBreadQty('${item.id}', 1)">+</button>
@@ -497,24 +499,13 @@
     function renderBarItems() {
       const container = document.getElementById('bar-items');
       container.innerHTML = '';
-      const barItems = [
-        { id: 'w1', name: 'Lokale wijn wit', price: 8.00 },
-        { id: 'w2', name: 'Lokale wijn rosé', price: 8.00 },
-        { id: 'w3', name: 'Lokale wijn rood', price: 8.00 },
-        { id: 'w4', name: 'Super Bock', price: 2.50 },
-        { id: 'w5', name: 'Speciaal bier', price: 3.50 },
-        { id: 'w6', name: 'Frisdrank', price: 2.00 },
-        { id: 'w7', name: 'Super Bock 0.0', price: 3.50 }
-      ];
-
-      barItems.forEach(item => {
+      barItemsList.forEach(item => {
         const row = document.createElement('div');
         row.className = 'q-row';
-        const price = menuData[item.id]?.price || item.price;
         row.innerHTML = `
           <div>${item.name}</div>
           <div class="q-ctrl">
-            <span style="color: var(--muted); font-size: 12px;">€ ${price.toFixed(2)}</span>
+            <span style="color: var(--muted); font-size: 12px;">€ ${item.price.toFixed(2)}</span>
             <button class="q-btn" onclick="changeBarQty('${item.id}', -1)">−</button>
             <span class="q-num">${barQty[item.id] || 0}</span>
             <button class="q-btn" onclick="changeBarQty('${item.id}', 1)">+</button>
@@ -537,39 +528,16 @@
 
     function updateBreadTotal() {
       let total = 0;
-      Object.keys(breadQty).forEach(id => {
-        const breadItems = [
-          { id: 'b1', price: 0.50 },
-          { id: 'b2', price: 0.50 },
-          { id: 'b3', price: 4.00 },
-          { id: 'b4', price: 2.50 }
-        ];
-        const item = breadItems.find(i => i.id === id);
-        if (item) {
-          const price = menuData[id]?.price || item.price;
-          total += (breadQty[id] || 0) * price;
-        }
+      breadItemsList.forEach(item => {
+        total += (breadQty[item.id] || 0) * item.price;
       });
       document.getElementById('bread-total').textContent = '€ ' + total.toFixed(2);
     }
 
     function updateBarTotal() {
       let total = 0;
-      Object.keys(barQty).forEach(id => {
-        const barItems = [
-          { id: 'w1', price: 8.00 },
-          { id: 'w2', price: 8.00 },
-          { id: 'w3', price: 8.00 },
-          { id: 'w4', price: 2.50 },
-          { id: 'w5', price: 3.50 },
-          { id: 'w6', price: 2.00 },
-          { id: 'w7', price: 3.50 }
-        ];
-        const item = barItems.find(i => i.id === id);
-        if (item) {
-          const price = menuData[id]?.price || item.price;
-          total += (barQty[id] || 0) * price;
-        }
+      barItemsList.forEach(item => {
+        total += (barQty[item.id] || 0) * item.price;
       });
       document.getElementById('bar-total').textContent = '€ ' + total.toFixed(2);
     }
@@ -580,13 +548,6 @@
         showError('bread-error', 'Voeg minstens één item toe');
         return;
       }
-
-      const breadItemsList = [
-        { id: 'b1', name: 'Wit broodje' },
-        { id: 'b2', name: 'Bruin broodje' },
-        { id: 'b3', name: 'Groot bruin brood' },
-        { id: 'b4', name: 'Pastel de nata' }
-      ];
 
       const itemsData = items.map(id => {
         const item = breadItemsList.find(i => i.id === id);
@@ -680,16 +641,7 @@
       }
 
       const detail = items.map(id => {
-        const barItems = [
-          { id: 'w1', name: 'Lokale wijn wit' },
-          { id: 'w2', name: 'Lokale wijn rosé' },
-          { id: 'w3', name: 'Lokale wijn rood' },
-          { id: 'w4', name: 'Super Bock' },
-          { id: 'w5', name: 'Speciaal bier' },
-          { id: 'w6', name: 'Frisdrank' },
-          { id: 'w7', name: 'Super Bock 0.0' }
-        ];
-        const item = barItems.find(i => i.id === id);
+        const item = barItemsList.find(i => i.id === id);
         return `${barQty[id]}× ${item?.name}`;
       }).join(', ');
 

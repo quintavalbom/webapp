@@ -59,6 +59,39 @@ async function updateMenuPrice(id, price) {
   }
 }
 
+async function updateMenuItem(id, updates) {
+  try {
+    const { data, error } = await sb.from('menu_items').update(updates).eq('id', id);
+    if (error) throw error;
+    return { success: true, data };
+  } catch (e) {
+    console.error('Menu update error:', e);
+    return { success: false, error: e.message };
+  }
+}
+
+async function addMenuItem(item) {
+  try {
+    const { data, error } = await sb.from('menu_items').insert([item]);
+    if (error) throw error;
+    return { success: true, data };
+  } catch (e) {
+    console.error('Menu add error:', e);
+    return { success: false, error: e.message };
+  }
+}
+
+async function deleteMenuItem(id) {
+  try {
+    const { data, error } = await sb.from('menu_items').delete().eq('id', id);
+    if (error) throw error;
+    return { success: true, data };
+  } catch (e) {
+    console.error('Menu delete error:', e);
+    return { success: false, error: e.message };
+  }
+}
+
 async function getWashBookings(date) {
   try {
     const { data, error } = await sb.from('wash_bookings').select('slot_id').eq('date', date);

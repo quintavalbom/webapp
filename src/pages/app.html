@@ -28,6 +28,7 @@
 
     <div class="mobile-menu" id="mobile-menu">
       <button class="nav-btn active" data-tab="info" onclick="switchTab('info', this)">ℹ️ Info</button>
+      <button class="nav-btn" data-tab="myorders" onclick="switchTab('myorders', this)">📦 Mijn bestellingen</button>
       <button class="nav-btn" data-tab="bread" onclick="switchTab('bread', this)">🥖 Broodjes</button>
       <button class="nav-btn" data-tab="dinner" onclick="switchTab('dinner', this)">🍽️ Diner</button>
       <button class="nav-btn" data-tab="wash" onclick="switchTab('wash', this)">🧺 Wassen</button>
@@ -147,6 +148,15 @@
           <textarea id="trips-note" placeholder="Vraag of opmerking..."></textarea>
           <button onclick="placeTripsRequest()">Verzoek insturen</button>
           <div id="trips-error" class="error" style="display: none;"></div>
+        </div>
+      </section>
+
+      <!-- MIJN BESTELLINGEN -->
+      <section id="section-myorders" class="section">
+        <div class="card">
+          <h2 class="card-title">📦 Mijn bestellingen</h2>
+          <p style="color: var(--muted); font-size: 12px; margin-bottom: 12px;">Aanpassen of annuleren kan tot <strong>19:00 uur</strong>, één dag vóór de bestel- of dinerdatum.</p>
+          <div id="my-orders-list"></div>
         </div>
       </section>
 
@@ -342,6 +352,7 @@
 
     <nav>
       <button class="nav-btn active" data-tab="info" onclick="switchTab('info', this)">ℹ️ Info</button>
+      <button class="nav-btn" data-tab="myorders" onclick="switchTab('myorders', this)">📦 Mijn</button>
       <button class="nav-btn" data-tab="bread" onclick="switchTab('bread', this)">🥖 Broodjes</button>
       <button class="nav-btn" data-tab="dinner" onclick="switchTab('dinner', this)">🍽️ Diner</button>
       <button class="nav-btn" data-tab="wash" onclick="switchTab('wash', this)">🧺 Wassen</button>
@@ -823,6 +834,187 @@
       document.getElementById('mobile-menu').classList.remove('open');
       document.getElementById('menu-overlay').classList.remove('open');
       document.getElementById('hamburger-btn').classList.remove('open');
+
+      if (tab === 'myorders') loadMyOrders();
+    }
+
+    // ========== MIJN BESTELLINGEN ==========
+    async function loadMyOrders() {
+      const container = document.getElementById('my-orders-list');
+      container.innerHTML = '<p style="color: var(--muted); font-size: 13px;">Laden...</p>';
+
+      const result = await sb.from('orders').select('*').eq('plek', user.plek).order('created_at', { ascending: false });
+      if (result.error) {
+        container.innerHTML = `<p class="error">Fout: ${result.error.message}</p>`;
+        return;
+      }
+
+      const myOrders = result.data || [];
+      if (!myOrders.length) {
+        container.innerHTML = '<p style="color: var(--muted); font-size: 13px; padding: 16px; text-align: center;">Je hebt nog geen bestellingen.</p>';
+        return;
+      }
+
+      container.innerHTML = '';
+      myOrders.forEach(o => {
+        const card = document.createElement('div');
+        card.style.cssText = 'background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px;';
+        card.id = `myorder-${o.id}`;
+
+        const editable = canEditOrder(o);
+        const dateLabel = o.order_date ? formatMyDate(o.order_date) : '';
+
+        let typeLabel = '';
+        if (o.type === '🥖') typeLabel = 'Broodjes';
+        else if (o.type === '🍽️') typeLabel = 'Diner';
+        else if (o.type === '🧺') typeLabel = 'Wasmachine';
+        else if (o.type === '🍷') typeLabel = 'Bar';
+        else if (o.type === '🗺️') typeLabel = 'Uitstapje';
+
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
+            <div>
+              <div style="font-weight: 600; font-size: 14px;">${o.type} ${typeLabel}${dateLabel ? ' · ' + dateLabel : ''}</div>
+              <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">${o.detail || ''}</div>
+              ${o.done ? '<div style="font-size: 11px; color: var(--qvt); margin-top: 4px;">✓ Verwerkt</div>' : ''}
+            </div>
+            <div style="display: flex; gap: 6px; flex-shrink: 0;">
+              ${editable && (o.type === '🥖' || o.type === '🍽️') ? `<button onclick="editMyOrder('${o.id}')" style="width:auto; padding: 6px 10px; font-size: 12px; margin: 0;">✏️ Aanpassen</button>` : ''}
+              ${editable ? `<button onclick="cancelMyOrder('${o.id}')" style="width:auto; padding: 6px 10px; font-size: 12px; margin: 0; background: white; color: #c0392b; border: 1px solid #f5c6c6;">🗑️ Annuleren</button>` : ''}
+            </div>
+          </div>
+          ${!editable ? '<div style="font-size: 11px; color: var(--hint); font-style: italic;">⏰ Deadline verstreken — neem contact op met de bar voor wijzigingen.</div>' : ''}
+          <div id="edit-${o.id}"></div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function canEditOrder(order) {
+      // Wash, bar and trips orders are immediate; only allow cancel within deadline
+      if (!order.order_date) {
+        // No order_date stored — fall back to created_at + same-day-ish logic.
+        // For safety: allow edit for 1 hour after creation.
+        const created = new Date(order.created_at);
+        return (Date.now() - created.getTime()) < 3600000;
+      }
+      return isWithinDeadline(order.order_date);
+    }
+
+    function formatMyDate(dateStr) {
+      try {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' });
+      } catch { return dateStr; }
+    }
+
+    async function cancelMyOrder(id) {
+      if (!confirm('Weet je zeker dat je deze bestelling wilt annuleren?')) return;
+      const { error } = await sb.from('orders').delete().eq('id', id);
+      if (error) {
+        alert('Fout: ' + error.message);
+        return;
+      }
+      showToast('Bestelling geannuleerd');
+      await loadDinnerCounts();
+      loadMyOrders();
+    }
+
+    async function editMyOrder(id) {
+      const result = await sb.from('orders').select('*').eq('id', id).single();
+      if (result.error || !result.data) return;
+      const order = result.data;
+      const editEl = document.getElementById(`edit-${id}`);
+
+      if (order.type === '🥖') {
+        editEl.innerHTML = `
+          <div style="margin-top: 12px; padding: 12px; background: var(--bg); border-radius: 8px;">
+            ${breadItemsList.map(item => {
+              const existing = (order.items || []).find(i => i.id === item.id);
+              const qty = existing ? existing.qty : 0;
+              return `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+                  <span style="font-size: 13px;">${item.name}</span>
+                  <input type="number" min="0" max="50" value="${qty}" id="myedit-qty-${id}-${item.id}" style="width: 70px; padding: 6px 8px; font-size: 13px; margin: 0; text-align: center;">
+                </div>
+              `;
+            }).join('')}
+            <div style="display: flex; gap: 8px; margin-top: 10px;">
+              <button onclick="saveMyBreadEdit('${id}')" style="padding: 8px; font-size: 13px; margin: 0;">💾 Opslaan</button>
+              <button onclick="loadMyOrders()" style="padding: 8px; font-size: 13px; margin: 0; background: white; color: var(--qv); border: 2px solid var(--qv);">Annuleren</button>
+            </div>
+          </div>
+        `;
+      } else if (order.type === '🍽️') {
+        const items = order.items || {};
+        editEl.innerHTML = `
+          <div style="margin-top: 12px; padding: 12px; background: var(--bg); border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+              <span style="font-size: 13px;">Volwassenen</span>
+              <input type="number" min="0" max="20" value="${items.adults || 0}" id="myedit-adults-${id}" style="width: 70px; padding: 6px 8px; font-size: 13px; margin: 0; text-align: center;">
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+              <span style="font-size: 13px;">Kinderen</span>
+              <input type="number" min="0" max="20" value="${items.kids || 0}" id="myedit-kids-${id}" style="width: 70px; padding: 6px 8px; font-size: 13px; margin: 0; text-align: center;">
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 10px;">
+              <button onclick="saveMyDinnerEdit('${id}')" style="padding: 8px; font-size: 13px; margin: 0;">💾 Opslaan</button>
+              <button onclick="loadMyOrders()" style="padding: 8px; font-size: 13px; margin: 0; background: white; color: var(--qv); border: 2px solid var(--qv);">Annuleren</button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    async function saveMyBreadEdit(id) {
+      const newItems = breadItemsList.map(item => {
+        const qty = parseInt(document.getElementById(`myedit-qty-${id}-${item.id}`).value) || 0;
+        return qty > 0 ? { id: item.id, name: item.name, qty } : null;
+      }).filter(Boolean);
+
+      if (!newItems.length) {
+        if (!confirm('Geen items meer. Bestelling annuleren?')) return;
+        return cancelMyOrder(id);
+      }
+
+      const detail = newItems.map(i => `${i.qty}× ${i.name}`).join(', ');
+      const { error } = await sb.from('orders').update({ items: newItems, detail }).eq('id', id);
+      if (error) { alert('Fout: ' + error.message); return; }
+      showToast('Bestelling bijgewerkt');
+      loadMyOrders();
+    }
+
+    async function saveMyDinnerEdit(id) {
+      const adults = parseInt(document.getElementById(`myedit-adults-${id}`).value) || 0;
+      const kids = parseInt(document.getElementById(`myedit-kids-${id}`).value) || 0;
+      const total = adults + kids;
+
+      if (total === 0) {
+        if (!confirm('Geen personen meer. Reservering annuleren?')) return;
+        return cancelMyOrder(id);
+      }
+
+      // Check available spots (excluding own current count for this date)
+      const result = await sb.from('orders').select('*').eq('id', id).single();
+      if (result.error) return;
+      const order = result.data;
+      const oldTotal = (order.items?.adults || 0) + (order.items?.kids || 0);
+      const others = (dinnerCountsByDate[order.order_date] || 0) - oldTotal;
+      const available = DINNER_MAX - others;
+      if (total > available) {
+        alert(`Er ${available === 1 ? 'is' : 'zijn'} nog ${available} plek${available === 1 ? '' : 'ken'} beschikbaar voor deze datum.`);
+        return;
+      }
+
+      const newItems = { ...(order.items || {}), adults, kids };
+      const dietLabel = [newItems.vegetarian && 'Veg', newItems.glutenfree && 'Gluten', newItems.note].filter(Boolean).join(', ');
+      const detail = `${adults}v + ${kids}k${dietLabel ? ' · ' + dietLabel : ''}`;
+
+      const { error } = await sb.from('orders').update({ items: newItems, detail }).eq('id', id);
+      if (error) { alert('Fout: ' + error.message); return; }
+      showToast('Reservering bijgewerkt');
+      await loadDinnerCounts();
+      loadMyOrders();
     }
 
     function toggleMenu() {

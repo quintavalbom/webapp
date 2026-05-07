@@ -42,6 +42,7 @@
         <div class="card">
           <h2 class="card-title">🥖 Broodjes bestellen</h2>
           <p style="color: var(--muted); font-size: 12px; margin-bottom: 12px;">Afhalen 8:30–11:30</p>
+          <div style="font-size: 12px; color: var(--qvt); background: var(--qvl); padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; line-height: 1.5;">⏰ Bestellen kan tot <strong>19:00 uur</strong> voor de volgende ochtend.</div>
           <label>Afhaaldag</label>
           <select id="bread-day"></select>
           <div id="bread-items"></div>
@@ -60,6 +61,7 @@
           <h2 class="card-title">🍽️ Dinner night</h2>
           <p style="color: var(--muted); font-size: 12px; margin-bottom: 12px;">Dinsdag & vrijdag · 19:00</p>
           <div style="font-size: 12px; color: var(--qvt); background: var(--qvl); padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; line-height: 1.5;">ℹ️ Het diner gaat door bij minimaal <strong>10</strong> personen. Maximaal <strong>20</strong> plekken beschikbaar.</div>
+          <div style="font-size: 12px; color: var(--qvt); background: var(--qvl); padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; line-height: 1.5;">⏰ Reserveren kan tot één dag vóór het diner, uiterlijk <strong>19:00 uur</strong>.</div>
           <label>Datum</label>
           <select id="dinner-date"></select>
           <div class="grid-2">
@@ -392,36 +394,55 @@
       }
     }
 
+    // Check if order is allowed: target date must be at least 1 day away,
+    // OR if it's tomorrow, current time must be before 19:00
+    function isWithinDeadline(dateStr) {
+      const target = new Date(dateStr);
+      target.setHours(0, 0, 0, 0);
+      const now = new Date();
+      const today = new Date(now);
+      today.setHours(0, 0, 0, 0);
+
+      const diffDays = Math.round((target - today) / 86400000);
+      if (diffDays < 1) return false; // today or past not allowed
+      if (diffDays === 1 && now.getHours() >= 19) return false; // past 19:00 deadline
+      return true;
+    }
+
     function setupDates() {
-      // Bread days (next 6 days, no Sunday)
-      const breadDaySelect = document.getElementById('bread-day');
       const today = new Date();
+      const pastDeadline = today.getHours() >= 19; // 19:00 deadline
+
+      // Bread days (next 6 days, no Sunday). Exclude "tomorrow" if past 19:00.
+      const breadDaySelect = document.getElementById('bread-day');
       let count = 0;
       for (let i = 1; count < 6; i++) {
         const d = new Date(today);
         d.setDate(d.getDate() + i);
-        if (d.getDay() !== 0) {
-          const option = document.createElement('option');
-          option.value = d.toISOString().split('T')[0];
-          option.textContent = d.toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' });
-          breadDaySelect.appendChild(option);
-          count++;
-        }
+        if (d.getDay() === 0) continue;
+        // Skip tomorrow if past 19:00
+        if (i === 1 && pastDeadline) continue;
+        const option = document.createElement('option');
+        option.value = d.toISOString().split('T')[0];
+        option.textContent = d.toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' });
+        breadDaySelect.appendChild(option);
+        count++;
       }
 
-      // Dinner dates (Tue & Fri)
+      // Dinner dates (Tue & Fri). Exclude "tomorrow" if past 19:00.
       const dinnerSelect = document.getElementById('dinner-date');
       count = 0;
       for (let i = 1; count < 6; i++) {
         const d = new Date(today);
         d.setDate(d.getDate() + i);
-        if (d.getDay() === 2 || d.getDay() === 5) {
-          const option = document.createElement('option');
-          option.value = d.toISOString().split('T')[0];
-          option.textContent = d.toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' });
-          dinnerSelect.appendChild(option);
-          count++;
-        }
+        if (d.getDay() !== 2 && d.getDay() !== 5) continue;
+        // Skip tomorrow if past 19:00
+        if (i === 1 && pastDeadline) continue;
+        const option = document.createElement('option');
+        option.value = d.toISOString().split('T')[0];
+        option.textContent = d.toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' });
+        dinnerSelect.appendChild(option);
+        count++;
       }
 
       // Wash days (next 7 days)
@@ -549,13 +570,23 @@
         return;
       }
 
+      // Check 19:00 deadline if order is for tomorrow
+      const pickupDate = document.getElementById('bread-day').value;
+      if (!pickupDate) {
+        showError('bread-error', 'Selecteer een afhaaldag');
+        return;
+      }
+      if (!isWithinDeadline(pickupDate)) {
+        showError('bread-error', 'Bestellen kan alleen tot 19:00 uur voor de volgende ochtend.');
+        return;
+      }
+
       const itemsData = items.map(id => {
         const item = breadItemsList.find(i => i.id === id);
         return { id, name: item?.name, qty: breadQty[id] };
       });
 
       const detail = itemsData.map(i => `${i.qty}× ${i.name}`).join(', ');
-      const pickupDate = document.getElementById('bread-day').value;
 
       const result = await saveOrder({
         plek: user.plek,
@@ -577,12 +608,21 @@
     }
 
     async function placeDinnerOrder() {
+      const eventDate = document.getElementById('dinner-date').value;
+      if (!eventDate) {
+        showError('dinner-error', 'Selecteer een datum');
+        return;
+      }
+      if (!isWithinDeadline(eventDate)) {
+        showError('dinner-error', 'Reserveren kan alleen tot 19:00 uur, één dag vóór het diner.');
+        return;
+      }
+
       const adults = parseInt(document.getElementById('dinner-adults').value) || 0;
       const kids = parseInt(document.getElementById('dinner-kids').value) || 0;
       const veg = document.getElementById('dinner-veg').checked;
       const gluten = document.getElementById('dinner-gluten').checked;
       const note = document.getElementById('dinner-note').value;
-      const eventDate = document.getElementById('dinner-date').value;
 
       const itemsData = {
         adults,

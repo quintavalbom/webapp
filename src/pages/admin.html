@@ -231,6 +231,7 @@
           <button class="admin-tab" data-section="dinner" onclick="switchAdminTab('dinner')">🍽️ Diner</button>
           <button class="admin-tab" data-section="other" onclick="switchAdminTab('other')">📋 Overig</button>
           <button class="admin-tab" data-section="prices" onclick="switchAdminTab('prices')">💰 Prijzen</button>
+          <button class="admin-tab" data-section="features" onclick="switchAdminTab('features')">🎛️ Functies</button>
         </div>
 
         <!-- BROOD -->
@@ -248,6 +249,15 @@
           <div class="card">
             <h2 class="card-title">📋 Overige bestellingen</h2>
             <div id="other-orders"></div>
+          </div>
+        </div>
+
+        <!-- FUNCTIES -->
+        <div class="admin-section" id="section-features">
+          <div class="card">
+            <h2 class="card-title">🎛️ Functies aan/uit</h2>
+            <p style="font-size: 12px; color: var(--muted); margin-bottom: 16px;">Schakel functies in of uit voor de gasten. Wijzigingen zijn meteen actief.</p>
+            <div id="feature-toggles"></div>
           </div>
         </div>
 
@@ -335,12 +345,50 @@
 
     async function loadAdminData() {
       await loadMenuPrices();
+      await loadFeatureToggles();
       const result = await getOrders();
       if (result.success) {
         allOrders = result.data || [];
         renderBreadDays();
         renderDinnerWeeks();
         renderOtherOrders();
+      }
+    }
+
+    async function loadFeatureToggles() {
+      const result = await getFeatureFlags();
+      const flags = result.data || {};
+      const features = [
+        { key: 'bar', label: '🍷 Bar bestellingen', desc: 'Drankjes en hapjes bestellen vanaf de plek' },
+        { key: 'trips', label: '🗺️ Uitstapjes', desc: 'Reserveringen voor wijnproeverij, jeep en fietsverhuur' }
+      ];
+      const container = document.getElementById('feature-toggles');
+      container.innerHTML = features.map(f => {
+        const isOn = flags[f.key] !== false;
+        return `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 0.5px solid var(--border); gap: 12px;">
+            <div>
+              <div style="font-size: 14px; font-weight: 600;">${f.label}</div>
+              <div style="font-size: 12px; color: var(--muted); margin-top: 2px;">${f.desc}</div>
+            </div>
+            <label style="position: relative; display: inline-block; width: 52px; height: 28px; flex-shrink: 0; margin: 0;">
+              <input type="checkbox" ${isOn ? 'checked' : ''} onchange="toggleFeature('${f.key}', this.checked)" style="opacity: 0; width: 0; height: 0; margin: 0;">
+              <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: ${isOn ? 'var(--qv)' : '#ccc'}; border-radius: 28px; transition: 0.2s;">
+                <span style="position: absolute; height: 22px; width: 22px; left: ${isOn ? '27px' : '3px'}; top: 3px; background: white; border-radius: 50%; transition: 0.2s;"></span>
+              </span>
+            </label>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function toggleFeature(key, enabled) {
+      const result = await updateFeatureFlag(key, enabled);
+      if (result.success) {
+        showToast(`${enabled ? '✓ Aan' : '🚫 Uit'}: ${key}`);
+        loadFeatureToggles();
+      } else {
+        alert('Fout: ' + result.error);
       }
     }
 

@@ -378,16 +378,42 @@
     let barItemsList = [];
     let dinnerCountsByDate = {};
     const DINNER_MAX = 18;
+    let featureFlags = { bar: true, trips: true };
 
     document.getElementById('user-info').textContent = `Plek ${user.plek} · ${user.name}`;
 
     // Initialize
     async function init() {
+      await loadFeatureFlags();
+      applyFeatureFlags();
       await loadMenu();
       setupDates();
       await loadWashDays();
       await loadDinnerCounts();
       updateDinnerAvailability();
+    }
+
+    async function loadFeatureFlags() {
+      const result = await getFeatureFlags();
+      if (result.success) {
+        featureFlags = { bar: true, trips: true, ...result.data };
+      }
+    }
+
+    function applyFeatureFlags() {
+      // Hide bar tab/section
+      document.querySelectorAll('[data-tab="bar"]').forEach(el => {
+        el.style.display = featureFlags.bar ? '' : 'none';
+      });
+      const barSec = document.getElementById('section-bar');
+      if (barSec && !featureFlags.bar) barSec.classList.remove('active');
+
+      // Hide trips tab/section
+      document.querySelectorAll('[data-tab="trips"]').forEach(el => {
+        el.style.display = featureFlags.trips ? '' : 'none';
+      });
+      const tripsSec = document.getElementById('section-trips');
+      if (tripsSec && !featureFlags.trips) tripsSec.classList.remove('active');
     }
 
     async function loadDinnerCounts() {

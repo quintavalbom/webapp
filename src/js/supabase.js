@@ -92,6 +92,30 @@ async function deleteMenuItem(id) {
   }
 }
 
+async function getFeatureFlags() {
+  try {
+    const { data, error } = await sb.from('feature_flags').select('*');
+    if (error) throw error;
+    const flags = {};
+    (data || []).forEach(row => { flags[row.key] = row.enabled; });
+    return { success: true, data: flags };
+  } catch (e) {
+    console.error('Feature flags error:', e);
+    return { success: false, error: e.message, data: {} };
+  }
+}
+
+async function updateFeatureFlag(key, enabled) {
+  try {
+    const { data, error } = await sb.from('feature_flags').upsert({ key, enabled });
+    if (error) throw error;
+    return { success: true, data };
+  } catch (e) {
+    console.error('Feature flag update error:', e);
+    return { success: false, error: e.message };
+  }
+}
+
 async function getWashBookings(date) {
   try {
     const { data, error } = await sb.from('wash_bookings').select('slot_id').eq('date', date);

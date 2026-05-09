@@ -62,40 +62,88 @@
       }
     }
 
-    // Fill pitch numbers
+    // Fill pitch numbers — only show pleks that are NOT occupied
     const plekSelect = document.getElementById('plek');
-    for (let i = 1; i <= 30; i++) {
-      const option = document.createElement('option');
-      option.value = i;
-      option.textContent = `Plek ${i}`;
-      plekSelect.appendChild(option);
+    const errorEl = document.getElementById('error');
+
+    async function fillPleks() {
+      // Reset
+      plekSelect.innerHTML = '<option value="">-- Laden... --</option>';
+
+      // Fetch occupied pleks
+      let occupied = new Set();
+      try {
+        const result = await getGuests();
+        if (result.success) {
+          (result.data || []).forEach(g => occupied.add(g.plek));
+        }
+      } catch (e) {
+        console.error('Could not load guests:', e);
+      }
+
+      plekSelect.innerHTML = '<option value="">-- Selecteer --</option>';
+      let added = 0;
+      for (let i = 1; i <= 30; i++) {
+        if (occupied.has(i)) continue;
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = `Plek ${i}`;
+        plekSelect.appendChild(option);
+        added++;
+      }
+
+      if (added === 0) {
+        plekSelect.innerHTML = '<option value="">Alle plekken bezet</option>';
+        errorEl.textContent = 'Alle plekken zijn momenteel bezet. Neem contact op met de bar.';
+        errorEl.style.display = 'block';
+      }
+
+      // Auto-fill from URL only if available
+      if (urlParams.get('plek') && !occupied.has(parseInt(urlParams.get('plek')))) {
+        plekSelect.value = urlParams.get('plek');
+      }
     }
 
-    // Auto-fill from URL
-    if (urlParams.get('plek')) {
-      plekSelect.value = urlParams.get('plek');
-    }
+    fillPleks();
 
     document.getElementById('onboarding-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('name').value.trim();
       const plek = document.getElementById('plek').value;
+      const errorEl = document.getElementById('error');
 
       if (!name || !plek) {
-        document.getElementById('error').textContent = 'Vul alle velden in';
-        document.getElementById('error').style.display = 'block';
+        errorEl.textContent = 'Vul alle velden in';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      // Final check: is this plek still available?
+      try {
+        const result = await getGuests();
+        if (result.success) {
+          const occupied = (result.data || []).some(g => g.plek === parseInt(plek));
+          if (occupied) {
+            errorEl.textContent = 'Deze plek is net door iemand anders ingenomen. Kies een andere plek.';
+            errorEl.style.display = 'block';
+            await fillPleks();
+            return;
+          }
+        }
+      } catch (err) {
+        console.error('Could not verify plek:', err);
+      }
+
+      // Save guest to Supabase (must succeed before continuing)
+      const saveResult = await saveGuest(name, parseInt(plek));
+      if (!saveResult.success) {
+        errorEl.textContent = 'Kon je niet aanmelden. Probeer opnieuw.';
+        errorEl.style.display = 'block';
         return;
       }
 
       // Save to localStorage
       localStorage.setItem('qv_user', JSON.stringify({ name, plek: parseInt(plek) }));
-
-      // Save to Supabase (best effort, don't block on errors)
-      try {
-        await saveGuest(name, parseInt(plek));
-      } catch (err) {
-        console.error('Could not save guest:', err);
-      }
 
       // Redirect to app
       window.location.href = './app.html?plek=' + plek;

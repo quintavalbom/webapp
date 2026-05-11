@@ -270,6 +270,7 @@
         <div class="admin-tabs">
           <button class="admin-tab active" data-section="bread" onclick="switchAdminTab('bread')">🥖 Brood</button>
           <button class="admin-tab" data-section="dinner" onclick="switchAdminTab('dinner')">🍽️ Diner</button>
+          <button class="admin-tab" data-section="wash" onclick="switchAdminTab('wash')">🧺 Wassen</button>
           <button class="admin-tab" data-section="other" onclick="switchAdminTab('other')">📋 Overig</button>
           <button class="admin-tab" data-section="guests" onclick="switchAdminTab('guests')">👥 Gasten</button>
           <button class="admin-tab" data-section="prices" onclick="switchAdminTab('prices')">💰 Prijzen</button>
@@ -286,7 +287,12 @@
           <div id="dinner-weeks"></div>
         </div>
 
-        <!-- OVERIG (was, bar, trips) -->
+        <!-- WASSEN -->
+        <div class="admin-section" id="section-wash">
+          <div id="wash-days"></div>
+        </div>
+
+        <!-- OVERIG (bar, trips) -->
         <div class="admin-section" id="section-other">
           <div class="card">
             <h2 class="card-title">📋 Overige bestellingen</h2>
@@ -405,7 +411,94 @@
       }
       try { await loadMenuPrices(); } catch (e) { console.error(e); }
       try { await loadGuests(); } catch (e) { console.error(e); }
+      try { await loadWashBookings(); } catch (e) { console.error(e); }
       try { await loadFeatureToggles(); } catch (e) { console.error(e); }
+    }
+
+    async function loadWashBookings() {
+      const container = document.getElementById('wash-days');
+      const [bookingsResult, guestsResult] = await Promise.all([getAllWashBookings(), getGuests()]);
+
+      if (!bookingsResult.success) {
+        container.innerHTML = `<div class="error">Fout: ${bookingsResult.error}</div>`;
+        return;
+      }
+
+      const bookings = bookingsResult.data || [];
+      const guestsByPlek = {};
+      (guestsResult.data || []).forEach(g => { guestsByPlek[g.plek] = g.name; });
+
+      if (!bookings.length) {
+        container.innerHTML = '<div class="empty-state">Nog geen wasreserveringen.</div>';
+        return;
+      }
+
+      const slotLabels = {
+        s1: '09:00 – 11:00',
+        s2: '11:00 – 13:00',
+        s3: '16:00 – 18:00'
+      };
+      const slotOrder = { s1: 1, s2: 2, s3: 3 };
+
+      // Group by date
+      const byDate = {};
+      bookings.forEach(b => {
+        const d = b.date || 'onbekend';
+        if (!byDate[d]) byDate[d] = [];
+        byDate[d].push(b);
+      });
+
+      const today = new Date().toISOString().split('T')[0];
+      const sortedDates = Object.keys(byDate).sort();
+
+      container.innerHTML = '';
+      sortedDates.forEach(date => {
+        const slots = byDate[date].sort((a, b) => (slotOrder[a.slot_id] || 9) - (slotOrder[b.slot_id] || 9));
+        const dateLabel = date === 'onbekend' ? 'Onbekend' : formatDate(date);
+        const expanded = expandedDays.has('wash-' + date);
+        const isPast = date !== 'onbekend' && date < today;
+
+        const card = document.createElement('div');
+        card.className = 'day-card';
+        card.innerHTML = `
+          <div class="day-header ${expanded ? 'expanded' : ''}" onclick="toggleDay('wash-${date}')">
+            <div>
+              <div class="day-title">${isPast ? '⏮️' : '🧺'} ${dateLabel} <span class="badge">${slots.length}/${3} ${slots.length === 1 ? 'slot' : 'slots'}</span></div>
+              <div class="day-meta">${slots.map(s => slotLabels[s.slot_id] || s.slot_id).join(' · ')}</div>
+            </div>
+            <div class="day-arrow ${expanded ? 'expanded' : ''}">▶</div>
+          </div>
+          <div class="day-body ${expanded ? 'expanded' : ''}" id="day-wash-${date}">
+            ${slots.map(b => {
+              const guestName = guestsByPlek[b.plek] || '—';
+              return `
+                <div class="order-item">
+                  <div class="order-item-header">
+                    <div>
+                      <div class="order-name">${slotLabels[b.slot_id] || b.slot_id} <span class="order-plek">· Plek ${b.plek} · ${guestName}</span></div>
+                    </div>
+                    <div class="order-actions">
+                      <button class="icon-btn danger" onclick="removeWashBooking('${b.id}', '${slotLabels[b.slot_id] || b.slot_id}', ${b.plek})" title="Verwijderen">🗑️</button>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    async function removeWashBooking(id, slotLabel, plek) {
+      if (!confirm(`Reservering ${slotLabel} (plek ${plek}) verwijderen?`)) return;
+      const result = await deleteWashBooking(id);
+      if (result.success) {
+        showToast('Reservering verwijderd');
+        loadWashBookings();
+      } else {
+        alert('Fout: ' + result.error);
+      }
     }
 
     async function loadGuests() {

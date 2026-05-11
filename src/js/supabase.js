@@ -170,3 +170,25 @@ async function saveWashBooking(booking) {
     return { success: false, error: e.message };
   }
 }
+
+async function getAllWashBookings() {
+  try {
+    const { data, error } = await sb.from('wash_bookings').select('*').order('date', { ascending: true });
+    if (error) throw error;
+    return { success: true, data: data || [] };
+  } catch (e) {
+    console.error('All wash bookings error:', e);
+    return { success: false, error: e.message, data: [] };
+  }
+}
+
+async function deleteWashBooking(id) {
+  try {
+    const { data, error } = await sb.from('wash_bookings').delete().eq('id', id);
+    if (error) throw error;
+    return { success: true, data };
+  } catch (e) {
+    console.error('Wash booking delete error:', e);
+    return { success: false, error: e.message };
+  }
+}

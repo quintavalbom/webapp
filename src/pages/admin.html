@@ -274,6 +274,7 @@
           <button class="admin-tab" data-section="other" onclick="switchAdminTab('other')">📋 Overig</button>
           <button class="admin-tab" data-section="guests" onclick="switchAdminTab('guests')">👥 Gasten</button>
           <button class="admin-tab" data-section="prices" onclick="switchAdminTab('prices')">💰 Prijzen</button>
+          <button class="admin-tab" data-section="qr" onclick="switchAdminTab('qr')">📱 QR</button>
           <button class="admin-tab" data-section="features" onclick="switchAdminTab('features')">🎛️ Functies</button>
         </div>
 
@@ -309,6 +310,33 @@
           </div>
         </div>
 
+        <!-- QR CODE -->
+        <div class="admin-section" id="section-qr">
+          <div class="card" style="text-align: center;">
+            <h2 class="card-title">📱 QR code voor gasten</h2>
+            <p style="font-size: 12px; color: var(--muted); margin-bottom: 16px;">Gasten kunnen deze code scannen om direct naar de app te gaan. Print of download de afbeelding voor bij de bar, toiletgebouw of in welkomstmap.</p>
+
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+              <label style="font-size: 12px; color: var(--muted); align-self: stretch; text-align: left;">URL voor de QR code</label>
+              <input type="text" id="qr-url" value="https://quintavalbom.github.io/webapp/" style="width: 100%; text-align: center; font-size: 13px;" onchange="renderQR()">
+
+              <label style="font-size: 12px; color: var(--muted); align-self: stretch; text-align: left;">Pleknummer (optioneel — vult automatisch in op de app)</label>
+              <input type="number" id="qr-plek" min="1" max="30" placeholder="Bijv. 5 (of leeg laten)" style="width: 100%; text-align: center; font-size: 13px;" onchange="renderQR()">
+
+              <div id="qr-container" style="background: white; padding: 16px; border-radius: 12px; border: 1px solid var(--border); display: inline-block; margin-top: 8px;">
+                <canvas id="qr-canvas"></canvas>
+              </div>
+
+              <div id="qr-link" style="font-size: 11px; color: var(--muted); word-break: break-all; padding: 0 16px;"></div>
+
+              <div style="display: flex; gap: 8px; width: 100%; margin-top: 8px;">
+                <button onclick="downloadQR()" style="flex: 1;">⬇️ Download</button>
+                <button onclick="printQR()" style="flex: 1;" class="btn-secondary">🖨️ Print</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- FUNCTIES -->
         <div class="admin-section" id="section-features">
           <div class="card">
@@ -340,6 +368,7 @@
   <div class="toast" id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script src="../js/supabase.js?v=20260506"></script>
   <script>
     const ADMIN_PIN = '0000';
@@ -576,6 +605,70 @@
     function switchAdminTab(name) {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.toggle('active', t.dataset.section === name));
       document.querySelectorAll('.admin-section').forEach(s => s.classList.toggle('active', s.id === `section-${name}`));
+      if (name === 'qr') renderQR();
+    }
+
+    // ===== QR CODE =====
+    function buildQRUrl() {
+      const base = document.getElementById('qr-url').value.trim() || 'https://quintavalbom.github.io/webapp/';
+      const plek = document.getElementById('qr-plek').value.trim();
+      let url = base;
+      if (plek) {
+        const sep = url.includes('?') ? '&' : '?';
+        url = url + sep + 'plek=' + encodeURIComponent(plek);
+      }
+      return url;
+    }
+
+    function renderQR() {
+      const url = buildQRUrl();
+      document.getElementById('qr-link').textContent = url;
+      const canvas = document.getElementById('qr-canvas');
+      QRCode.toCanvas(canvas, url, {
+        width: 280,
+        margin: 1,
+        color: { dark: '#004d52', light: '#ffffff' },
+        errorCorrectionLevel: 'M'
+      }, (err) => { if (err) console.error(err); });
+    }
+
+    function downloadQR() {
+      const canvas = document.getElementById('qr-canvas');
+      const link = document.createElement('a');
+      const plek = document.getElementById('qr-plek').value.trim();
+      link.download = plek ? `quintavalbom-plek-${plek}.png` : 'quintavalbom-qr.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function printQR() {
+      const url = buildQRUrl();
+      const canvas = document.getElementById('qr-canvas');
+      const dataUrl = canvas.toDataURL('image/png');
+      const plek = document.getElementById('qr-plek').value.trim();
+      const title = plek ? `Plek ${plek} — Quinta Valbom` : 'Welkom bij Quinta Valbom';
+      const w = window.open('', '_blank');
+      w.document.write(`
+        <!DOCTYPE html><html><head><title>${title}</title>
+        <style>
+          body { font-family: -apple-system, sans-serif; text-align: center; padding: 40px 20px; }
+          h1 { color: #004d52; font-size: 28px; margin-bottom: 8px; }
+          h2 { color: #00BAC5; font-size: 20px; font-weight: 500; margin-bottom: 30px; }
+          img { width: 320px; height: 320px; }
+          .url { font-size: 12px; color: #666; word-break: break-all; margin-top: 16px; }
+          .footer { margin-top: 24px; font-size: 14px; color: #444; }
+          @media print { @page { margin: 1cm; } }
+        </style></head>
+        <body>
+          <h1>${title}</h1>
+          <h2>Scan de QR code voor onze app</h2>
+          <img src="${dataUrl}" alt="QR code">
+          <div class="url">${url}</div>
+          <div class="footer">Bestel broodjes · reserveer diner · vraag info<br>📱 Plaats op je beginscherm voor snelle toegang</div>
+        </body></html>
+      `);
+      w.document.close();
+      setTimeout(() => w.print(), 300);
     }
 
     // ===== BROOD =====

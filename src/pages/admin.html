@@ -477,10 +477,11 @@
       });
 
       const today = new Date().toISOString().split('T')[0];
-      const sortedDates = Object.keys(byDate).sort();
+      const allDates = Object.keys(byDate).sort();
+      const upcoming = allDates.filter(d => d === 'onbekend' || d >= today);
+      const past = allDates.filter(d => d !== 'onbekend' && d < today).reverse(); // most recent first
 
-      container.innerHTML = '';
-      sortedDates.forEach(date => {
+      function renderDayCard(date) {
         const slots = byDate[date].sort((a, b) => (slotOrder[a.slot_id] || 9) - (slotOrder[b.slot_id] || 9));
         const dateLabel = date === 'onbekend' ? 'Onbekend' : formatDate(date);
         const expanded = expandedDays.has('wash-' + date);
@@ -514,8 +515,26 @@
             }).join('')}
           </div>
         `;
-        container.appendChild(card);
-      });
+        return card;
+      }
+
+      container.innerHTML = '';
+
+      if (upcoming.length) {
+        const h = document.createElement('div');
+        h.className = 'week-header';
+        h.textContent = 'Aankomend';
+        container.appendChild(h);
+        upcoming.forEach(date => container.appendChild(renderDayCard(date)));
+      }
+
+      if (past.length) {
+        const h = document.createElement('div');
+        h.className = 'week-header';
+        h.textContent = 'Verleden';
+        container.appendChild(h);
+        past.forEach(date => container.appendChild(renderDayCard(date)));
+      }
     }
 
     async function removeWashBooking(id, slotLabel, plek) {

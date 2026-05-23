@@ -74,6 +74,7 @@ const TRANSLATIONS = {
     wash_select_slot: 'Selecteer een tijdslot',
     wash_taken: '❌ Bezet',
     wash_free: '✓ Vrij',
+    wash_today: 'vandaag',
     wash_reserved: 'Slot gereserveerd! 🎉',
 
     // Bar
@@ -194,6 +195,7 @@ const TRANSLATIONS = {
     wash_select_slot: 'Please select a time slot',
     wash_taken: '❌ Taken',
     wash_free: '✓ Free',
+    wash_today: 'today',
     wash_reserved: 'Slot reserved! 🎉',
 
     bar_title: '🍷 Bar order',
@@ -311,6 +313,7 @@ const TRANSLATIONS = {
     wash_select_slot: 'Selecione um horário',
     wash_taken: '❌ Ocupado',
     wash_free: '✓ Livre',
+    wash_today: 'hoje',
     wash_reserved: 'Horário reservado! 🎉',
 
     bar_title: '🍷 Pedido no bar',
@@ -428,6 +431,7 @@ const TRANSLATIONS = {
     wash_select_slot: 'Selecciona un horario',
     wash_taken: '❌ Ocupado',
     wash_free: '✓ Libre',
+    wash_today: 'hoy',
     wash_reserved: '¡Horario reservado! 🎉',
 
     bar_title: '🍷 Pedido en el bar',
@@ -545,6 +549,7 @@ const TRANSLATIONS = {
     wash_select_slot: 'Bitte ein Zeitfenster wählen',
     wash_taken: '❌ Belegt',
     wash_free: '✓ Frei',
+    wash_today: 'heute',
     wash_reserved: 'Slot reserviert! 🎉',
 
     bar_title: '🍷 Bar-Bestellung',
@@ -662,6 +667,7 @@ const TRANSLATIONS = {
     wash_select_slot: 'Sélectionnez un créneau',
     wash_taken: '❌ Pris',
     wash_free: '✓ Libre',
+    wash_today: "aujourd'hui",
     wash_reserved: 'Créneau réservé ! 🎉',
 
     bar_title: '🍷 Commande au bar',

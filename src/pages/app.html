@@ -180,8 +180,8 @@
   <div class="toast" id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/i18n.js?v=20260509"></script>
-  <script src="../js/info-content.js?v=20260509"></script>
+  <script src="../js/i18n.js?v=20260511"></script>
+  <script src="../js/info-content.js?v=20260511"></script>
   <script src="../js/supabase.js?v=20260506"></script>
   <script>
     // User data
@@ -360,17 +360,19 @@
         count++;
       }
 
-      // Wash days (next 7 days)
+      // Wash days (today + next 7 days)
       const washSelect = document.getElementById('wash-day');
-      for (let i = 1; i <= 7; i++) {
+      for (let i = 0; i <= 7; i++) {
         const d = new Date(today);
         d.setDate(d.getDate() + i);
         const option = document.createElement('option');
         option.value = d.toISOString().split('T')[0];
-        option.textContent = d.toLocaleDateString(langCode(), { weekday: 'short', day: 'numeric', month: 'short' });
+        const label = d.toLocaleDateString(langCode(), { weekday: 'short', day: 'numeric', month: 'short' });
+        option.textContent = i === 0 ? `${label} (${t('wash_today')})` : label;
         washSelect.appendChild(option);
       }
-      if (washSelect.options.length > 1) washSelect.value = washSelect.options[1].value;
+      // Default to today
+      if (washSelect.options.length > 0) washSelect.value = washSelect.options[0].value;
     }
 
     async function loadWashDays() {

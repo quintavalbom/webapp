@@ -486,10 +486,10 @@
 
       function maxSlotsForDate(d) {
         if (d === 'onbekend') return 3;
-        if (d >= '2026-06-03') return 2;
         const dayOfWeek = new Date(d).getDay();
-        if (dayOfWeek === 0) return 1; // Sunday: closed in the morning
-        return 3;
+        const morningCount = dayOfWeek === 0 ? 0 : 2; // No Sunday morning
+        const afternoonCount = d >= '2026-06-03' ? 2 : 1; // 2 from June 3, otherwise 1
+        return morningCount + afternoonCount;
       }
 
       function renderDayCard(date) {

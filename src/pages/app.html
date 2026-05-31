@@ -729,13 +729,41 @@
       const container = document.getElementById('my-orders-list');
       container.innerHTML = `<p style="color: var(--muted); font-size: 13px;">${t('my_loading')}</p>`;
 
-      const result = await sb.from('orders').select('*').eq('plek', user.plek).order('created_at', { ascending: false });
-      if (result.error) {
-        container.innerHTML = `<p class="error">Fout: ${result.error.message}</p>`;
+      const [ordersResult, washResult] = await Promise.all([
+        sb.from('orders').select('*').eq('plek', user.plek).order('created_at', { ascending: false }),
+        sb.from('wash_bookings').select('*').eq('plek', user.plek).order('date', { ascending: false })
+      ]);
+
+      if (ordersResult.error) {
+        container.innerHTML = `<p class="error">Fout: ${ordersResult.error.message}</p>`;
         return;
       }
 
-      const myOrders = result.data || [];
+      const slotLabels = {
+        s1: '09:00 – 11:00', s2: '11:00 – 13:00', s3: '16:00 – 18:00',
+        s4: '15:00 – 17:00', s5: '17:00 – 19:00'
+      };
+
+      // Normalize wash bookings into the order shape
+      const washAsOrders = (washResult.data || []).map(w => ({
+        id: w.id,
+        source: 'wash',
+        type: '🧺',
+        plek: w.plek,
+        order_date: w.date,
+        detail: slotLabels[w.slot_id] || w.slot_id,
+        created_at: w.created_at || w.date,
+        done: false
+      }));
+
+      const orders = (ordersResult.data || []).map(o => ({ ...o, source: 'order' }));
+
+      const myOrders = [...orders, ...washAsOrders].sort((a, b) => {
+        const ka = (a.order_date || a.created_at || '');
+        const kb = (b.order_date || b.created_at || '');
+        return kb.localeCompare(ka);
+      });
+
       if (!myOrders.length) {
         container.innerHTML = `<p style="color: var(--muted); font-size: 13px; padding: 16px; text-align: center;">${t('my_none')}</p>`;
         return;
@@ -757,6 +785,9 @@
         else if (o.type === '🍷') typeLabel = t('my_kind_bar');
         else if (o.type === '🗺️') typeLabel = t('my_kind_trips');
 
+        const isWash = o.source === 'wash';
+        const cancelCall = isWash ? `cancelMyWash('${o.id}')` : `cancelMyOrder('${o.id}')`;
+
         card.innerHTML = `
           <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
             <div>
@@ -766,7 +797,7 @@
             </div>
             <div style="display: flex; gap: 6px; flex-shrink: 0;">
               ${editable && (o.type === '🥖' || o.type === '🍽️') ? `<button onclick="editMyOrder('${o.id}')" style="width:auto; padding: 6px 10px; font-size: 12px; margin: 0;">${t('my_edit')}</button>` : ''}
-              ${editable ? `<button onclick="cancelMyOrder('${o.id}')" style="width:auto; padding: 6px 10px; font-size: 12px; margin: 0; background: white; color: #c0392b; border: 1px solid #f5c6c6;">${t('my_cancel')}</button>` : ''}
+              ${editable ? `<button onclick="${cancelCall}" style="width:auto; padding: 6px 10px; font-size: 12px; margin: 0; background: white; color: #c0392b; border: 1px solid #f5c6c6;">${t('my_cancel')}</button>` : ''}
             </div>
           </div>
           ${!editable ? `<div style="font-size: 11px; color: var(--hint); font-style: italic;">${t('my_deadline_passed')}</div>` : ''}
@@ -776,11 +807,31 @@
       });
     }
 
+    async function cancelMyWash(id) {
+      if (!confirm(t('my_confirm_cancel'))) return;
+      const { error } = await sb.from('wash_bookings').delete().eq('id', id);
+      if (error) {
+        alert('Fout: ' + error.message);
+        return;
+      }
+      showToast(t('my_cancelled'));
+      // Refresh wash slot availability if open
+      try { await loadWashSlots(); } catch (e) {}
+      loadMyOrders();
+    }
+
     function canEditOrder(order) {
-      // Wash, bar and trips orders are immediate; only allow cancel within deadline
+      // Wash bookings: allow cancel until the booked date has passed (incl. same day)
+      if (order.source === 'wash') {
+        if (!order.order_date) return false;
+        const target = new Date(order.order_date);
+        target.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return target >= today;
+      }
+      // Other orders without order_date: allow for 1h after creation
       if (!order.order_date) {
-        // No order_date stored — fall back to created_at + same-day-ish logic.
-        // For safety: allow edit for 1 hour after creation.
         const created = new Date(order.created_at);
         return (Date.now() - created.getTime()) < 3600000;
       }

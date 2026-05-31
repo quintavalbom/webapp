@@ -464,9 +464,12 @@
       const slotLabels = {
         s1: '09:00 – 11:00',
         s2: '11:00 – 13:00',
-        s3: '16:00 – 18:00'
+        s3: '16:00 – 18:00',
+        s4: '15:00 – 17:00',
+        s5: '17:00 – 19:00'
       };
-      const slotOrder = { s1: 1, s2: 2, s3: 3 };
+      // Order by start time so older + newer slots both sort sensibly within a day
+      const slotOrder = { s1: 1, s2: 2, s4: 3, s3: 4, s5: 5 };
 
       // Group by date
       const byDate = {};
@@ -481,18 +484,27 @@
       const upcoming = allDates.filter(d => d === 'onbekend' || d >= today);
       const past = allDates.filter(d => d !== 'onbekend' && d < today).reverse(); // most recent first
 
+      function maxSlotsForDate(d) {
+        if (d === 'onbekend') return 3;
+        if (d >= '2026-06-03') return 2;
+        const dayOfWeek = new Date(d).getDay();
+        if (dayOfWeek === 0) return 1; // Sunday: closed in the morning
+        return 3;
+      }
+
       function renderDayCard(date) {
         const slots = byDate[date].sort((a, b) => (slotOrder[a.slot_id] || 9) - (slotOrder[b.slot_id] || 9));
         const dateLabel = date === 'onbekend' ? 'Onbekend' : formatDate(date);
         const expanded = expandedDays.has('wash-' + date);
         const isPast = date !== 'onbekend' && date < today;
+        const maxSlots = maxSlotsForDate(date);
 
         const card = document.createElement('div');
         card.className = 'day-card';
         card.innerHTML = `
           <div class="day-header ${expanded ? 'expanded' : ''}" onclick="toggleDay('wash-${date}')">
             <div>
-              <div class="day-title">${isPast ? '⏮️' : '🧺'} ${dateLabel} <span class="badge">${slots.length}/${3} ${slots.length === 1 ? 'slot' : 'slots'}</span></div>
+              <div class="day-title">${isPast ? '⏮️' : '🧺'} ${dateLabel} <span class="badge">${slots.length}/${maxSlots} ${slots.length === 1 ? 'slot' : 'slots'}</span></div>
               <div class="day-meta">${slots.map(s => slotLabels[s.slot_id] || s.slot_id).join(' · ')}</div>
             </div>
             <div class="day-arrow ${expanded ? 'expanded' : ''}">▶</div>

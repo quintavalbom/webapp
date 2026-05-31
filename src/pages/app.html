@@ -382,14 +382,33 @@
       }
     }
 
-    async function loadWashSlots() {
-      const date = document.getElementById('wash-day').value;
-      const result = await getWashBookings(date);
-      const slots = [
+    function getWashSlotsForDate(dateStr) {
+      if (!dateStr) return [];
+      // From 3 June 2026 onwards: 2 afternoon slots only
+      if (dateStr >= '2026-06-03') {
+        return [
+          { id: 's4', time: '15:00–17:00' },
+          { id: 's5', time: '17:00–19:00' }
+        ];
+      }
+      // Before 3 June: current schedule, but no Sunday morning (closed)
+      const base = [
         { id: 's1', time: '09:00–11:00' },
         { id: 's2', time: '11:00–13:00' },
         { id: 's3', time: '16:00–18:00' }
       ];
+      const dayOfWeek = new Date(dateStr).getDay(); // 0 = Sunday
+      if (dayOfWeek === 0) {
+        // Sunday morning closed — only keep afternoon
+        return base.filter(s => s.id === 's3');
+      }
+      return base;
+    }
+
+    async function loadWashSlots() {
+      const date = document.getElementById('wash-day').value;
+      const result = await getWashBookings(date);
+      const slots = getWashSlotsForDate(date);
 
       const booked = new Set((result.data || []).map(b => b.slot_id));
       const slotsDiv = document.getElementById('wash-slots');

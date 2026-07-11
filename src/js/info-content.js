@@ -134,6 +134,7 @@ INFO_CONTENT.nl = `
   <div class="info-block"><h4>Arco de Baúlhe</h4><p>O Paco · O Caneiro</p></div>
   <div class="info-block"><h4>Amarante</h4><p>Terrassa</p></div>
   <div class="info-block"><h4>Guimarães</h4><p>daTerra (vegetarisch)</p></div>
+  <div class="info-block"><h4>Porto</h4><p>Porta 4</p></div>
   <div class="info-block"><h4>Lokaal</h4><p>Batataz of Convivio: pizza, friet, tosti en hamburger</p></div>
 </div>
 `;
@@ -271,6 +272,7 @@ INFO_CONTENT.en = `
   <div class="info-block"><h4>Arco de Baúlhe</h4><p>O Paco · O Caneiro</p></div>
   <div class="info-block"><h4>Amarante</h4><p>Terrassa</p></div>
   <div class="info-block"><h4>Guimarães</h4><p>daTerra (vegetarian)</p></div>
+  <div class="info-block"><h4>Porto</h4><p>Porta 4</p></div>
   <div class="info-block"><h4>Local</h4><p>Batataz or Convivio: pizza, fries, toasties and burgers</p></div>
 </div>
 `;
@@ -408,6 +410,7 @@ INFO_CONTENT.pt = `
   <div class="info-block"><h4>Arco de Baúlhe</h4><p>O Paço · O Caneiro</p></div>
   <div class="info-block"><h4>Amarante</h4><p>Terrassa</p></div>
   <div class="info-block"><h4>Guimarães</h4><p>daTerra (vegetariano)</p></div>
+  <div class="info-block"><h4>Porto</h4><p>Porta 4</p></div>
   <div class="info-block"><h4>Local</h4><p>Batataz ou Convivio: pizza, batatas fritas, tostas e hambúrgueres</p></div>
 </div>
 `;
@@ -545,6 +548,7 @@ INFO_CONTENT.es = `
   <div class="info-block"><h4>Arco de Baúlhe</h4><p>O Paço · O Caneiro</p></div>
   <div class="info-block"><h4>Amarante</h4><p>Terrassa</p></div>
   <div class="info-block"><h4>Guimarães</h4><p>daTerra (vegetariano)</p></div>
+  <div class="info-block"><h4>Porto</h4><p>Porta 4</p></div>
   <div class="info-block"><h4>Local</h4><p>Batataz o Convivio: pizza, patatas fritas, tostas y hamburguesas</p></div>
 </div>
 `;
@@ -682,6 +686,7 @@ INFO_CONTENT.de = `
   <div class="info-block"><h4>Arco de Baúlhe</h4><p>O Paço · O Caneiro</p></div>
   <div class="info-block"><h4>Amarante</h4><p>Terrassa</p></div>
   <div class="info-block"><h4>Guimarães</h4><p>daTerra (vegetarisch)</p></div>
+  <div class="info-block"><h4>Porto</h4><p>Porta 4</p></div>
   <div class="info-block"><h4>Lokal</h4><p>Batataz oder Convivio: Pizza, Pommes, Toasties und Burger</p></div>
 </div>
 `;
@@ -819,6 +824,7 @@ INFO_CONTENT.fr = `
   <div class="info-block"><h4>Arco de Baúlhe</h4><p>O Paço · O Caneiro</p></div>
   <div class="info-block"><h4>Amarante</h4><p>Terrassa</p></div>
   <div class="info-block"><h4>Guimarães</h4><p>daTerra (végétarien)</p></div>
+  <div class="info-block"><h4>Porto</h4><p>Porta 4</p></div>
   <div class="info-block"><h4>Local</h4><p>Batataz ou Convivio : pizza, frites, croque-monsieur et burgers</p></div>
 </div>
 `;

@@ -137,6 +137,16 @@ INFO_CONTENT.nl = `
   <div class="info-block"><h4>Porto</h4><p>Porta 4</p></div>
   <div class="info-block"><h4>Lokaal</h4><p>Batataz of Convivio: pizza, friet, tosti en hamburger</p></div>
 </div>
+
+<div class="card">
+  <h2 class="card-title">🏞️ Rivierstrandjes & wandelen</h2>
+  <div class="info-block"><p>Circuito dos Moinhos de Argontim — Praia Fluvial de Quintela</p></div>
+  <div class="info-block"><p>Piocas de Baixo (Alvão, Fisgas de Ermelo)</p></div>
+  <div class="info-block"><p>Praia Fluvial Mondim de Basto (Rio Tâmega)</p></div>
+  <div class="info-block"><p>Praia Fluvial de Fermil de Basto</p></div>
+  <div class="info-block"><p>Praia Fluvial da Albufeira da Queimadela</p></div>
+  <div class="info-block"><p>Praia Fluvial da Ponte Ranha</p></div>
+</div>
 `;
 
 INFO_CONTENT.en = `
@@ -274,6 +284,16 @@ INFO_CONTENT.en = `
   <div class="info-block"><h4>Guimarães</h4><p>daTerra (vegetarian)</p></div>
   <div class="info-block"><h4>Porto</h4><p>Porta 4</p></div>
   <div class="info-block"><h4>Local</h4><p>Batataz or Convivio: pizza, fries, toasties and burgers</p></div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">🏞️ River beaches & hiking</h2>
+  <div class="info-block"><p>Circuito dos Moinhos de Argontim — Praia Fluvial de Quintela</p></div>
+  <div class="info-block"><p>Piocas de Baixo (Alvão, Fisgas de Ermelo)</p></div>
+  <div class="info-block"><p>Praia Fluvial Mondim de Basto (Rio Tâmega)</p></div>
+  <div class="info-block"><p>Praia Fluvial de Fermil de Basto</p></div>
+  <div class="info-block"><p>Praia Fluvial da Albufeira da Queimadela</p></div>
+  <div class="info-block"><p>Praia Fluvial da Ponte Ranha</p></div>
 </div>
 `;
 
@@ -413,6 +433,16 @@ INFO_CONTENT.pt = `
   <div class="info-block"><h4>Porto</h4><p>Porta 4</p></div>
   <div class="info-block"><h4>Local</h4><p>Batataz ou Convivio: pizza, batatas fritas, tostas e hambúrgueres</p></div>
 </div>
+
+<div class="card">
+  <h2 class="card-title">🏞️ Praias fluviais & caminhadas</h2>
+  <div class="info-block"><p>Circuito dos Moinhos de Argontim — Praia Fluvial de Quintela</p></div>
+  <div class="info-block"><p>Piocas de Baixo (Alvão, Fisgas de Ermelo)</p></div>
+  <div class="info-block"><p>Praia Fluvial Mondim de Basto (Rio Tâmega)</p></div>
+  <div class="info-block"><p>Praia Fluvial de Fermil de Basto</p></div>
+  <div class="info-block"><p>Praia Fluvial da Albufeira da Queimadela</p></div>
+  <div class="info-block"><p>Praia Fluvial da Ponte Ranha</p></div>
+</div>
 `;
 
 INFO_CONTENT.es = `
@@ -550,6 +580,16 @@ INFO_CONTENT.es = `
   <div class="info-block"><h4>Guimarães</h4><p>daTerra (vegetariano)</p></div>
   <div class="info-block"><h4>Porto</h4><p>Porta 4</p></div>
   <div class="info-block"><h4>Local</h4><p>Batataz o Convivio: pizza, patatas fritas, tostas y hamburguesas</p></div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">🏞️ Playas fluviales & senderismo</h2>
+  <div class="info-block"><p>Circuito dos Moinhos de Argontim — Praia Fluvial de Quintela</p></div>
+  <div class="info-block"><p>Piocas de Baixo (Alvão, Fisgas de Ermelo)</p></div>
+  <div class="info-block"><p>Praia Fluvial Mondim de Basto (Rio Tâmega)</p></div>
+  <div class="info-block"><p>Praia Fluvial de Fermil de Basto</p></div>
+  <div class="info-block"><p>Praia Fluvial da Albufeira da Queimadela</p></div>
+  <div class="info-block"><p>Praia Fluvial da Ponte Ranha</p></div>
 </div>
 `;
 
@@ -689,6 +729,16 @@ INFO_CONTENT.de = `
   <div class="info-block"><h4>Porto</h4><p>Porta 4</p></div>
   <div class="info-block"><h4>Lokal</h4><p>Batataz oder Convivio: Pizza, Pommes, Toasties und Burger</p></div>
 </div>
+
+<div class="card">
+  <h2 class="card-title">🏞️ Flussstrände & Wandern</h2>
+  <div class="info-block"><p>Circuito dos Moinhos de Argontim — Praia Fluvial de Quintela</p></div>
+  <div class="info-block"><p>Piocas de Baixo (Alvão, Fisgas de Ermelo)</p></div>
+  <div class="info-block"><p>Praia Fluvial Mondim de Basto (Rio Tâmega)</p></div>
+  <div class="info-block"><p>Praia Fluvial de Fermil de Basto</p></div>
+  <div class="info-block"><p>Praia Fluvial da Albufeira da Queimadela</p></div>
+  <div class="info-block"><p>Praia Fluvial da Ponte Ranha</p></div>
+</div>
 `;
 
 INFO_CONTENT.fr = `
@@ -826,6 +876,16 @@ INFO_CONTENT.fr = `
   <div class="info-block"><h4>Guimarães</h4><p>daTerra (végétarien)</p></div>
   <div class="info-block"><h4>Porto</h4><p>Porta 4</p></div>
   <div class="info-block"><h4>Local</h4><p>Batataz ou Convivio : pizza, frites, croque-monsieur et burgers</p></div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">🏞️ Plages fluviales & randonnées</h2>
+  <div class="info-block"><p>Circuito dos Moinhos de Argontim — Praia Fluvial de Quintela</p></div>
+  <div class="info-block"><p>Piocas de Baixo (Alvão, Fisgas de Ermelo)</p></div>
+  <div class="info-block"><p>Praia Fluvial Mondim de Basto (Rio Tâmega)</p></div>
+  <div class="info-block"><p>Praia Fluvial de Fermil de Basto</p></div>
+  <div class="info-block"><p>Praia Fluvial da Albufeira da Queimadela</p></div>
+  <div class="info-block"><p>Praia Fluvial da Ponte Ranha</p></div>
 </div>
 `;
 

@@ -930,6 +930,11 @@
           items.glutenfree && '🌾 Glutenvrij'
         ].filter(Boolean).join(' · ');
 
+        const kidAges = Array.isArray(items.kid_ages) ? items.kid_ages : [];
+        const kidAgesLabel = (items.kids > 0 && kidAges.length)
+          ? ` <span style="color: var(--muted); font-weight: 400;">(${kidAges.join(', ')}j)</span>`
+          : '';
+
         return `
           <div class="order-item" id="order-${o.id}">
             <div class="order-item-header">
@@ -944,7 +949,7 @@
             </div>
             <div id="items-${o.id}">
               <div class="item-row"><span>Volwassenen</span><span>${items.adults || 0}</span></div>
-              <div class="item-row"><span>Kinderen</span><span>${items.kids || 0}</span></div>
+              <div class="item-row"><span>Kinderen</span><span>${items.kids || 0}${kidAgesLabel}</span></div>
               ${items.note ? `<div style="font-size: 12px; color: var(--muted); margin-top: 8px; font-style: italic;">📝 ${items.note}</div>` : ''}
             </div>
           </div>
@@ -956,6 +961,7 @@
       const order = allOrders.find(o => o.id === orderId);
       if (!order) return;
       const items = order.items || {};
+      const initialAges = Array.isArray(items.kid_ages) ? items.kid_ages : [];
 
       document.getElementById(`items-${orderId}`).innerHTML = `
         <div class="item-row">
@@ -964,13 +970,40 @@
         </div>
         <div class="item-row">
           <span>Kinderen</span>
-          <input type="number" min="0" max="20" value="${items.kids || 0}" class="qty-input" id="kids-${orderId}">
+          <input type="number" min="0" max="20" value="${items.kids || 0}" class="qty-input" id="kids-${orderId}" oninput="renderAdminKidAges('${orderId}')">
         </div>
+        <div id="admin-kid-ages-${orderId}" data-initial='${JSON.stringify(initialAges)}'></div>
         <div style="display: flex; gap: 8px; margin-top: 10px;">
           <button onclick="saveDinnerEdit('${orderId}')" style="padding: 8px; font-size: 13px; margin-bottom: 0;">💾 Opslaan</button>
           <button class="btn-secondary" onclick="renderDinnerWeeks()" style="padding: 8px; font-size: 13px; margin-bottom: 0;">Annuleren</button>
         </div>
       `;
+      renderAdminKidAges(orderId);
+    }
+
+    function renderAdminKidAges(orderId) {
+      const kidsInput = document.getElementById(`kids-${orderId}`);
+      const wrap = document.getElementById(`admin-kid-ages-${orderId}`);
+      if (!kidsInput || !wrap) return;
+      const n = parseInt(kidsInput.value) || 0;
+      const existing = [];
+      for (let i = 0; i < 20; i++) {
+        const el = document.getElementById(`admin-kid-age-${orderId}-${i}`);
+        if (el) existing[i] = el.value;
+      }
+      let initial = [];
+      try { initial = JSON.parse(wrap.dataset.initial || '[]'); } catch (e) {}
+      wrap.innerHTML = '';
+      for (let i = 0; i < n; i++) {
+        const val = existing[i] != null ? existing[i] : (initial[i] != null ? initial[i] : 6);
+        const row = document.createElement('div');
+        row.className = 'item-row';
+        row.innerHTML = `
+          <span>Leeftijd kind ${i + 1}</span>
+          <input type="number" min="0" max="17" value="${val}" class="qty-input" id="admin-kid-age-${orderId}-${i}">
+        `;
+        wrap.appendChild(row);
+      }
     }
 
     async function saveDinnerEdit(orderId) {
@@ -983,9 +1016,16 @@
         return deleteOrder(orderId);
       }
 
-      const newItems = { ...(order.items || {}), adults, kids };
+      const kidAges = [];
+      for (let i = 0; i < kids; i++) {
+        const el = document.getElementById(`admin-kid-age-${orderId}-${i}`);
+        if (el) kidAges.push(parseInt(el.value) || 0);
+      }
+
+      const newItems = { ...(order.items || {}), adults, kids, kid_ages: kidAges };
+      const kidsLabel = kids > 0 && kidAges.length ? `${kids}k (${kidAges.join(',')}j)` : `${kids}k`;
       const dietLabel = [newItems.vegetarian && 'Veg', newItems.glutenfree && 'Gluten', newItems.note].filter(Boolean).join(', ');
-      const detail = `${adults}v + ${kids}k${dietLabel ? ' · ' + dietLabel : ''}`;
+      const detail = `${adults}v + ${kidsLabel}${dietLabel ? ' · ' + dietLabel : ''}`;
 
       const result = await updateOrder(orderId, { items: newItems, detail });
       if (result.success) {

@@ -107,6 +107,10 @@ INFO_CONTENT.nl = `
     <p>Laat geen eten buiten staan.</p>
   </div>
   <div class="info-block">
+    <h4>⚡ Elektriciteitsgebruik</h4>
+    <p>Ga bewust om met energie. We hebben campingstroom en niet alle apparaten zijn daar geschikt voor. Airconditioning is niet toegestaan vanwege geluidsoverlast. Elektrische auto's en fietsen kunnen niet zomaar opgeladen worden — informeer bij de bar.</p>
+  </div>
+  <div class="info-block">
     <h4>👋 Bezoek</h4>
     <p>Bezoek van buiten de camping? Graag even melden bij ons.</p>
   </div>
@@ -253,6 +257,10 @@ INFO_CONTENT.en = `
   <div class="info-block">
     <h4>🍴 Food outside</h4>
     <p>Do not leave food outside.</p>
+  </div>
+  <div class="info-block">
+    <h4>⚡ Electricity use</h4>
+    <p>Please use energy consciously. We have campsite power and not all appliances are suitable. Air-conditioning is not allowed because of noise. Electric cars and bikes cannot simply be charged — please ask at the bar.</p>
   </div>
   <div class="info-block">
     <h4>👋 Visitors</h4>
@@ -403,6 +411,10 @@ INFO_CONTENT.pt = `
     <p>Não deixe comida fora.</p>
   </div>
   <div class="info-block">
+    <h4>⚡ Consumo de eletricidade</h4>
+    <p>Use a energia com consciência. Temos eletricidade de parque e nem todos os aparelhos são adequados. Ar condicionado não é permitido devido ao ruído. Carros e bicicletas elétricas não podem ser carregados sem mais — por favor pergunte no bar.</p>
+  </div>
+  <div class="info-block">
     <h4>👋 Visitas</h4>
     <p>Visitantes de fora? Por favor avise-nos.</p>
   </div>
@@ -549,6 +561,10 @@ INFO_CONTENT.es = `
   <div class="info-block">
     <h4>🍴 Comida fuera</h4>
     <p>No dejes comida fuera.</p>
+  </div>
+  <div class="info-block">
+    <h4>⚡ Consumo de electricidad</h4>
+    <p>Usa la energía con conciencia. Tenemos corriente de camping y no todos los aparatos son adecuados. El aire acondicionado no está permitido por el ruido. Los coches y bicicletas eléctricas no pueden cargarse sin más — pregunta en el bar.</p>
   </div>
   <div class="info-block">
     <h4>👋 Visitas</h4>
@@ -699,6 +715,10 @@ INFO_CONTENT.de = `
     <p>Lassen Sie kein Essen draußen liegen.</p>
   </div>
   <div class="info-block">
+    <h4>⚡ Stromverbrauch</h4>
+    <p>Gehen Sie bewusst mit Energie um. Wir haben Campingstrom und nicht alle Geräte sind dafür geeignet. Klimaanlagen sind wegen der Geräuschbelästigung nicht erlaubt. Elektroautos und E-Bikes können nicht einfach so geladen werden — bitte an der Bar nachfragen.</p>
+  </div>
+  <div class="info-block">
     <h4>👋 Besuch</h4>
     <p>Besuch von außerhalb? Bitte kurz Bescheid sagen.</p>
   </div>
@@ -845,6 +865,10 @@ INFO_CONTENT.fr = `
   <div class="info-block">
     <h4>🍴 Nourriture dehors</h4>
     <p>Ne laissez pas de nourriture dehors.</p>
+  </div>
+  <div class="info-block">
+    <h4>⚡ Consommation électrique</h4>
+    <p>Utilisez l'énergie avec conscience. Nous avons du courant de camping et tous les appareils n'y sont pas adaptés. La climatisation n'est pas autorisée en raison du bruit. Les voitures et vélos électriques ne peuvent pas être chargés directement — renseignez-vous au bar.</p>
   </div>
   <div class="info-block">
     <h4>👋 Visites</h4>

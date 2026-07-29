@@ -65,6 +65,7 @@
           <div style="font-size: 12px; color: var(--qvt); background: var(--qvl); padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; line-height: 1.5;" data-i18n-html="dinner_price_info">💶 <strong>€ 25,-</strong> per volwassene · <strong>€ 15,-</strong> per kind. Inclusief couvert, hoofdgerecht, bijgerechten (salade/rijst) en dessert.</div>
           <div id="dinner-availability" style="font-size: 13px; color: var(--qvt); background: var(--qvl); padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; line-height: 1.5; font-weight: 600;">🪑 Beschikbaarheid wordt geladen...</div>
           <div style="font-size: 12px; color: var(--qvt); background: var(--qvl); padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; line-height: 1.5;" data-i18n-html="dinner_deadline">⏰ Reserveren kan tot één dag vóór het diner, uiterlijk <strong>19:00 uur</strong>.</div>
+          <div id="dinner-blackouts"></div>
           <label data-i18n="dinner_date">Datum</label>
           <select id="dinner-date" onchange="updateDinnerAvailability()"></select>
           <div class="grid-2">
@@ -197,6 +198,19 @@
     let barItemsList = [];
     let dinnerCountsByDate = {};
     const DINNER_MAX = 18;
+
+    // Dates when the dinner is cancelled (e.g. village festivities).
+    // Value = translation object keyed by language code.
+    const DINNER_BLACKOUT = {
+      '2026-08-07': {
+        nl: '🎉 Op 7 augustus is er feest in het dorp Gandarela — geen diner die avond.',
+        en: '🎉 On 7 August there is a village celebration in Gandarela — no dinner that evening.',
+        pt: '🎉 A 7 de agosto há festa na aldeia de Gandarela — sem jantar nessa noite.',
+        es: '🎉 El 7 de agosto hay fiesta en el pueblo de Gandarela — no hay cena esa noche.',
+        de: '🎉 Am 7. August ist Dorffest in Gandarela — an diesem Abend kein Dinner.',
+        fr: '🎉 Le 7 août, fête du village à Gandarela — pas de dîner ce soir-là.'
+      }
+    };
     let featureFlags = { bar: true, trips: true };
 
     document.getElementById('user-info').textContent = `Plek ${user.plek} · ${user.name}`;
@@ -253,6 +267,21 @@
           const persons = (items.adults || 0) + (items.kids || 0);
           dinnerCountsByDate[o.order_date] = (dinnerCountsByDate[o.order_date] || 0) + persons;
         });
+    }
+
+    function renderDinnerBlackoutNotices() {
+      const wrap = document.getElementById('dinner-blackouts');
+      if (!wrap) return;
+      const todayStr = new Date().toISOString().split('T')[0];
+      const lang = getLang();
+      const upcoming = Object.keys(DINNER_BLACKOUT)
+        .filter(d => d >= todayStr)
+        .sort();
+      if (!upcoming.length) { wrap.innerHTML = ''; return; }
+      wrap.innerHTML = upcoming.map(d => {
+        const msg = DINNER_BLACKOUT[d][lang] || DINNER_BLACKOUT[d].nl;
+        return `<div style="font-size: 12px; color: #8b6d00; background: #fff4d1; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; line-height: 1.5;">${msg}</div>`;
+      }).join('');
     }
 
     function updateDinnerAvailability() {
@@ -346,7 +375,7 @@
         count++;
       }
 
-      // Dinner dates (Tue & Fri). Exclude "tomorrow" if past 19:00.
+      // Dinner dates (Tue & Fri). Exclude "tomorrow" if past 19:00 and blackout dates.
       const dinnerSelect = document.getElementById('dinner-date');
       count = 0;
       for (let i = 1; count < 6; i++) {
@@ -355,12 +384,15 @@
         if (d.getDay() !== 2 && d.getDay() !== 5) continue;
         // Skip tomorrow if past 19:00
         if (i === 1 && pastDeadline) continue;
+        const dateStr = d.toISOString().split('T')[0];
+        if (DINNER_BLACKOUT[dateStr]) continue;
         const option = document.createElement('option');
-        option.value = d.toISOString().split('T')[0];
+        option.value = dateStr;
         option.textContent = d.toLocaleDateString(langCode(), { weekday: 'short', day: 'numeric', month: 'short' });
         dinnerSelect.appendChild(option);
         count++;
       }
+      renderDinnerBlackoutNotices();
 
       // Wash days (today + next 7 days)
       const washSelect = document.getElementById('wash-day');
@@ -586,6 +618,11 @@
       }
       if (!isWithinDeadline(eventDate)) {
         showError('dinner-error', t('dinner_deadline_passed'));
+        return;
+      }
+      if (DINNER_BLACKOUT[eventDate]) {
+        const msg = DINNER_BLACKOUT[eventDate][getLang()] || DINNER_BLACKOUT[eventDate].nl;
+        showError('dinner-error', msg);
         return;
       }
 

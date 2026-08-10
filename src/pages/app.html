@@ -211,6 +211,18 @@
         fr: '🎉 Le 7 août, fête du village à Gandarela — pas de dîner ce soir-là.'
       }
     };
+
+    // Dates with a special price. Message replaces the standard price info for that date.
+    const DINNER_PRICE_OVERRIDES = {
+      '2026-05-15': {
+        nl: '🍽️ Op 15 mei speciale prijs: <strong>€ 15,-</strong> hoofdgerecht per volwassene · <strong>€ 10,-</strong> per kind.',
+        en: '🍽️ On 15 May special price: <strong>€ 15.00</strong> main course per adult · <strong>€ 10.00</strong> per child.',
+        pt: '🍽️ A 15 de maio preço especial: <strong>€ 15,00</strong> prato principal por adulto · <strong>€ 10,00</strong> por criança.',
+        es: '🍽️ El 15 de mayo precio especial: <strong>€ 15,00</strong> plato principal por adulto · <strong>€ 10,00</strong> por niño.',
+        de: '🍽️ Am 15. Mai Sonderpreis: <strong>€ 15,00</strong> Hauptgang pro Erwachsener · <strong>€ 10,00</strong> pro Kind.',
+        fr: '🍽️ Le 15 mai prix spécial : <strong>15,00 €</strong> plat principal par adulte · <strong>10,00 €</strong> par enfant.'
+      }
+    };
     let featureFlags = { bar: true, trips: true };
 
     document.getElementById('user-info').textContent = `Plek ${user.plek} · ${user.name}`;
@@ -284,8 +296,25 @@
       }).join('');
     }
 
+    function updateDinnerPriceInfo() {
+      const selectedDate = document.getElementById('dinner-date').value;
+      const el = document.querySelector('[data-i18n-html="dinner_price_info"]');
+      if (!el) return;
+      if (selectedDate && DINNER_PRICE_OVERRIDES[selectedDate]) {
+        const msg = DINNER_PRICE_OVERRIDES[selectedDate][getLang()] || DINNER_PRICE_OVERRIDES[selectedDate].nl;
+        el.innerHTML = msg;
+        el.style.background = '#fff4d1';
+        el.style.color = '#8b6d00';
+      } else {
+        el.innerHTML = t('dinner_price_info');
+        el.style.background = '';
+        el.style.color = '';
+      }
+    }
+
     function updateDinnerAvailability() {
       const selectedDate = document.getElementById('dinner-date').value;
+      updateDinnerPriceInfo();
       const el = document.getElementById('dinner-availability');
       if (!selectedDate) {
         el.innerHTML = t('dinner_avail_select');

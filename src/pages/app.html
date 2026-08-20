@@ -209,6 +209,27 @@
         es: '🎉 El 7 de agosto hay fiesta en el pueblo de Gandarela — no hay cena esa noche.',
         de: '🎉 Am 7. August ist Dorffest in Gandarela — an diesem Abend kein Dinner.',
         fr: '🎉 Le 7 août, fête du village à Gandarela — pas de dîner ce soir-là.'
+      },
+      '2026-08-25': {
+        nl: 'ℹ️ Diner van dinsdag 25 augustus is verplaatst naar maandag 24 augustus.',
+        en: 'ℹ️ Tuesday 25 August dinner moved to Monday 24 August.',
+        pt: 'ℹ️ O jantar de terça 25 de agosto foi adiado para segunda 24 de agosto.',
+        es: 'ℹ️ La cena del martes 25 de agosto se traslada al lunes 24 de agosto.',
+        de: 'ℹ️ Das Dinner vom Dienstag, 25. August, wurde auf Montag, 24. August, verschoben.',
+        fr: 'ℹ️ Le dîner de mardi 25 août est reporté au lundi 24 août.'
+      }
+    };
+
+    // Extra dinner dates outside the normal Tue/Fri schedule.
+    // The message is shown as an always-visible notice.
+    const DINNER_EXTRA_DATES = {
+      '2026-08-24': {
+        nl: '🥘 Op maandag 24 augustus: <strong>Portugese tapas</strong> — buffet met voor-, hoofd- en nagerecht.',
+        en: '🥘 On Monday 24 August: <strong>Portuguese tapas</strong> — buffet with starter, main and dessert.',
+        pt: '🥘 Na segunda 24 de agosto: <strong>Tapas portuguesas</strong> — buffet com entrada, prato principal e sobremesa.',
+        es: '🥘 El lunes 24 de agosto: <strong>Tapas portuguesas</strong> — bufé con entrante, plato principal y postre.',
+        de: '🥘 Am Montag, 24. August: <strong>Portugiesische Tapas</strong> — Buffet mit Vorspeise, Hauptgang und Nachtisch.',
+        fr: '🥘 Le lundi 24 août : <strong>Tapas portugaises</strong> — buffet avec entrée, plat principal et dessert.'
       }
     };
 
@@ -286,14 +307,18 @@
       if (!wrap) return;
       const todayStr = new Date().toISOString().split('T')[0];
       const lang = getLang();
-      const upcoming = Object.keys(DINNER_BLACKOUT)
-        .filter(d => d >= todayStr)
-        .sort();
-      if (!upcoming.length) { wrap.innerHTML = ''; return; }
-      wrap.innerHTML = upcoming.map(d => {
+      const notices = [];
+      // Extra-date notices (green — special menu)
+      Object.keys(DINNER_EXTRA_DATES).filter(d => d >= todayStr).sort().forEach(d => {
+        const msg = DINNER_EXTRA_DATES[d][lang] || DINNER_EXTRA_DATES[d].nl;
+        notices.push(`<div style="font-size: 12px; color: #004d52; background: var(--qvl); padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; line-height: 1.5;">${msg}</div>`);
+      });
+      // Blackout notices (yellow — cancelled/moved)
+      Object.keys(DINNER_BLACKOUT).filter(d => d >= todayStr).sort().forEach(d => {
         const msg = DINNER_BLACKOUT[d][lang] || DINNER_BLACKOUT[d].nl;
-        return `<div style="font-size: 12px; color: #8b6d00; background: #fff4d1; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; line-height: 1.5;">${msg}</div>`;
-      }).join('');
+        notices.push(`<div style="font-size: 12px; color: #8b6d00; background: #fff4d1; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; line-height: 1.5;">${msg}</div>`);
+      });
+      wrap.innerHTML = notices.join('');
     }
 
     function updateDinnerPriceInfo() {
@@ -404,23 +429,37 @@
         count++;
       }
 
-      // Dinner dates (Tue & Fri). Exclude "tomorrow" if past 19:00 and blackout dates.
+      // Dinner dates (Tue & Fri + any extra dates). Exclude "tomorrow" if past 19:00 and blackout dates.
       const dinnerSelect = document.getElementById('dinner-date');
+      const todayStr = today.toISOString().split('T')[0];
+      const dinnerDates = [];
       count = 0;
       for (let i = 1; count < 6; i++) {
         const d = new Date(today);
         d.setDate(d.getDate() + i);
         if (d.getDay() !== 2 && d.getDay() !== 5) continue;
-        // Skip tomorrow if past 19:00
         if (i === 1 && pastDeadline) continue;
         const dateStr = d.toISOString().split('T')[0];
         if (DINNER_BLACKOUT[dateStr]) continue;
+        dinnerDates.push(dateStr);
+        count++;
+      }
+      // Add extra dates within the same window
+      const lastRegular = dinnerDates.length ? dinnerDates[dinnerDates.length - 1] : todayStr;
+      Object.keys(DINNER_EXTRA_DATES).forEach(dateStr => {
+        if (dateStr < todayStr) return;
+        if (dateStr > lastRegular && dinnerDates.length >= 6) return;
+        if (!isWithinDeadline(dateStr) && dateStr !== todayStr) return;
+        if (!dinnerDates.includes(dateStr)) dinnerDates.push(dateStr);
+      });
+      dinnerDates.sort();
+      dinnerDates.forEach(dateStr => {
+        const d = new Date(dateStr);
         const option = document.createElement('option');
         option.value = dateStr;
         option.textContent = d.toLocaleDateString(langCode(), { weekday: 'short', day: 'numeric', month: 'short' });
         dinnerSelect.appendChild(option);
-        count++;
-      }
+      });
       renderDinnerBlackoutNotices();
 
       // Wash days (today + next 7 days)

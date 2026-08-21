@@ -218,22 +218,8 @@
         de: 'ℹ️ Das Dinner vom Dienstag, 25. August, wurde auf Montag, 24. August, verschoben.',
         fr: 'ℹ️ Le dîner de mardi 25 août est reporté au lundi 24 août.'
       },
-      '2026-08-28': {
-        nl: 'ℹ️ Op vrijdag 28 augustus is er geen diner.',
-        en: 'ℹ️ No dinner on Friday 28 August.',
-        pt: 'ℹ️ Não há jantar na sexta-feira 28 de agosto.',
-        es: 'ℹ️ No hay cena el viernes 28 de agosto.',
-        de: 'ℹ️ Am Freitag, 28. August, kein Dinner.',
-        fr: 'ℹ️ Pas de dîner le vendredi 28 août.'
-      },
-      '2026-09-04': {
-        nl: 'ℹ️ Op vrijdag 4 september is er geen diner.',
-        en: 'ℹ️ No dinner on Friday 4 September.',
-        pt: 'ℹ️ Não há jantar na sexta-feira 4 de setembro.',
-        es: 'ℹ️ No hay cena el viernes 4 de septiembre.',
-        de: 'ℹ️ Am Freitag, 4. September, kein Dinner.',
-        fr: 'ℹ️ Pas de dîner le vendredi 4 septembre.'
-      }
+      '2026-08-28': { silent: true },
+      '2026-09-04': { silent: true }
     };
 
     // Extra dinner dates outside the normal Tue/Fri schedule.
@@ -329,9 +315,12 @@
         const msg = DINNER_EXTRA_DATES[d][lang] || DINNER_EXTRA_DATES[d].nl;
         notices.push(`<div style="font-size: 12px; color: #004d52; background: var(--qvl); padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; line-height: 1.5;">${msg}</div>`);
       });
-      // Blackout notices (yellow — cancelled/moved)
+      // Blackout notices (yellow — cancelled/moved). Skip entries marked silent.
       Object.keys(DINNER_BLACKOUT).filter(d => d >= todayStr).sort().forEach(d => {
-        const msg = DINNER_BLACKOUT[d][lang] || DINNER_BLACKOUT[d].nl;
+        const entry = DINNER_BLACKOUT[d];
+        if (entry.silent) return;
+        const msg = entry[lang] || entry.nl;
+        if (!msg) return;
         notices.push(`<div style="font-size: 12px; color: #8b6d00; background: #fff4d1; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; line-height: 1.5;">${msg}</div>`);
       });
       wrap.innerHTML = notices.join('');
@@ -705,7 +694,8 @@
         return;
       }
       if (DINNER_BLACKOUT[eventDate]) {
-        const msg = DINNER_BLACKOUT[eventDate][getLang()] || DINNER_BLACKOUT[eventDate].nl;
+        const entry = DINNER_BLACKOUT[eventDate];
+        const msg = entry[getLang()] || entry.nl || t('dinner_full_msg');
         showError('dinner-error', msg);
         return;
       }

@@ -36,11 +36,11 @@ INFO_CONTENT.nl = `
   <h2 class="card-title">🍞 Eten & drinken</h2>
   <div class="info-block">
     <h4>☕ Bar ochtend</h4>
-    <p><strong>Ma–za: 8:30 – 11:30 uur</strong><br>Zo: 10:00 – 11:00 uur (koffie & uitcheck)<br>Verse broodjes, koffie en lekkere zoetigheden.</p>
+    <p><strong>Ma–za: 8:30 – 11:00 uur</strong><br>Zo: 10:00 – 11:00 uur (koffie & uitcheck)<br>Verse broodjes, koffie en lekkere zoetigheden.</p>
   </div>
   <div class="info-block">
     <h4>🍷 Bar middag</h4>
-    <p><strong>15:00 – 19:00 uur</strong> (16:00 – 19:00 in laagseizoen)<br>Lokale wijntjes, biertjes en ijsjes. Ook open op zondag.</p>
+    <p><strong>16:00 – 19:00 uur</strong><br>Lokale wijntjes, biertjes en ijsjes. Ook open op zondag.</p>
   </div>
   <div class="info-block">
     <h4>🍽️ Dinner Night</h4>
@@ -188,11 +188,11 @@ INFO_CONTENT.en = `
   <h2 class="card-title">🍞 Food & drinks</h2>
   <div class="info-block">
     <h4>☕ Bar morning</h4>
-    <p><strong>Mon–Sat: 8:30 – 11:30</strong><br>Sun: 10:00 – 11:00 (coffee & check-out)<br>Fresh bread, coffee and tasty sweets.</p>
+    <p><strong>Mon–Sat: 8:30 – 11:00</strong><br>Sun: 10:00 – 11:00 (coffee & check-out)<br>Fresh bread, coffee and tasty sweets.</p>
   </div>
   <div class="info-block">
     <h4>🍷 Bar afternoon</h4>
-    <p><strong>15:00 – 19:00</strong> (16:00 – 19:00 in low season)<br>Local wines, beers and ice creams. Open on Sundays too.</p>
+    <p><strong>16:00 – 19:00</strong><br>Local wines, beers and ice creams. Open on Sundays too.</p>
   </div>
   <div class="info-block">
     <h4>🍽️ Dinner Night</h4>
@@ -340,11 +340,11 @@ INFO_CONTENT.pt = `
   <h2 class="card-title">🍞 Comida & bebidas</h2>
   <div class="info-block">
     <h4>☕ Bar manhã</h4>
-    <p><strong>Seg–sáb: 8:30 – 11:30</strong><br>Dom: 10:00 – 11:00 (café e check-out)<br>Pão fresco, café e doces.</p>
+    <p><strong>Seg–sáb: 8:30 – 11:00</strong><br>Dom: 10:00 – 11:00 (café e check-out)<br>Pão fresco, café e doces.</p>
   </div>
   <div class="info-block">
     <h4>🍷 Bar tarde</h4>
-    <p><strong>15:00 – 19:00</strong> (16:00 – 19:00 na época baixa)<br>Vinhos locais, cervejas e gelados. Aberto também ao domingo.</p>
+    <p><strong>16:00 – 19:00</strong><br>Vinhos locais, cervejas e gelados. Aberto também ao domingo.</p>
   </div>
   <div class="info-block">
     <h4>🍽️ Noite de jantar</h4>
@@ -492,11 +492,11 @@ INFO_CONTENT.es = `
   <h2 class="card-title">🍞 Comida & bebidas</h2>
   <div class="info-block">
     <h4>☕ Bar mañana</h4>
-    <p><strong>Lun–sáb: 8:30 – 11:30</strong><br>Dom: 10:00 – 11:00 (café y check-out)<br>Pan fresco, café y dulces.</p>
+    <p><strong>Lun–sáb: 8:30 – 11:00</strong><br>Dom: 10:00 – 11:00 (café y check-out)<br>Pan fresco, café y dulces.</p>
   </div>
   <div class="info-block">
     <h4>🍷 Bar tarde</h4>
-    <p><strong>15:00 – 19:00</strong> (16:00 – 19:00 en temporada baja)<br>Vinos locales, cervezas y helados. Abierto también los domingos.</p>
+    <p><strong>16:00 – 19:00</strong><br>Vinos locales, cervezas y helados. Abierto también los domingos.</p>
   </div>
   <div class="info-block">
     <h4>🍽️ Cena especial</h4>
@@ -644,11 +644,11 @@ INFO_CONTENT.de = `
   <h2 class="card-title">🍞 Essen & Trinken</h2>
   <div class="info-block">
     <h4>☕ Bar morgens</h4>
-    <p><strong>Mo–Sa: 8:30 – 11:30 Uhr</strong><br>So: 10:00 – 11:00 Uhr (Kaffee & Check-out)<br>Frische Brötchen, Kaffee und süße Leckereien.</p>
+    <p><strong>Mo–Sa: 8:30 – 11:00 Uhr</strong><br>So: 10:00 – 11:00 Uhr (Kaffee & Check-out)<br>Frische Brötchen, Kaffee und süße Leckereien.</p>
   </div>
   <div class="info-block">
     <h4>🍷 Bar nachmittags</h4>
-    <p><strong>15:00 – 19:00 Uhr</strong> (16:00 – 19:00 in der Nebensaison)<br>Lokaler Wein, Bier und Eis. Auch sonntags geöffnet.</p>
+    <p><strong>16:00 – 19:00 Uhr</strong><br>Lokaler Wein, Bier und Eis. Auch sonntags geöffnet.</p>
   </div>
   <div class="info-block">
     <h4>🍽️ Dinner Night</h4>
@@ -796,11 +796,11 @@ INFO_CONTENT.fr = `
   <h2 class="card-title">🍞 Restauration</h2>
   <div class="info-block">
     <h4>☕ Bar matin</h4>
-    <p><strong>Lun–sam : 8h30 – 11h30</strong><br>Dim : 10h00 – 11h00 (café & check-out)<br>Pain frais, café et douceurs.</p>
+    <p><strong>Lun–sam : 8h30 – 11h00</strong><br>Dim : 10h00 – 11h00 (café & check-out)<br>Pain frais, café et douceurs.</p>
   </div>
   <div class="info-block">
     <h4>🍷 Bar après-midi</h4>
-    <p><strong>15h00 – 19h00</strong> (16h00 – 19h00 en basse saison)<br>Vins locaux, bières et glaces. Ouvert aussi le dimanche.</p>
+    <p><strong>16h00 – 19h00</strong><br>Vins locaux, bières et glaces. Ouvert aussi le dimanche.</p>
   </div>
   <div class="info-block">
     <h4>🍽️ Soirée dîner</h4>

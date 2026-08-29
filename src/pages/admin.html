@@ -899,8 +899,8 @@
 
           const goAhead = totalPersons >= 10 ? '✅' : '⚠️';
           let status;
-          if (totalPersons >= 18) status = 'Vol (kan eventueel +2 erbij)';
-          else if (totalPersons >= 10) status = `Gaat door · nog ${18 - totalPersons} plek${18 - totalPersons === 1 ? '' : 'ken'}`;
+          if (totalPersons >= 16) status = 'Vol (kan eventueel +2 erbij)';
+          else if (totalPersons >= 10) status = `Gaat door · nog ${16 - totalPersons} plek${16 - totalPersons === 1 ? '' : 'ken'}`;
           else status = `Nog ${10 - totalPersons} nodig (min.)`;
 
           const card = document.createElement('div');
@@ -908,7 +908,7 @@
           card.innerHTML = `
             <div class="day-header ${expanded ? 'expanded' : ''}" onclick="toggleDay('dinner-${date}')">
               <div>
-                <div class="day-title">${goAhead} ${dateLabel} <span class="badge">${totalPersons}/18 pers.</span></div>
+                <div class="day-title">${goAhead} ${dateLabel} <span class="badge">${totalPersons}/16 pers.</span></div>
                 <div class="day-meta">${totalAdults}v + ${totalKids}k · ${status}</div>
               </div>
               <div class="day-arrow ${expanded ? 'expanded' : ''}">▶</div>

@@ -36,7 +36,7 @@ INFO_CONTENT.nl = `
   <h2 class="card-title">🍞 Eten & drinken</h2>
   <div class="info-block">
     <h4>☕ Bar ochtend</h4>
-    <p><strong>Ma–za: 8:30 – 11:00 uur</strong><br>Zo: 10:00 – 11:00 uur (koffie & uitcheck)<br>Verse broodjes, koffie en lekkere zoetigheden.</p>
+    <p><strong>Elke dag: 9:00 – 11:00 uur</strong> (koffie & uitcheck)<br>Verse broodjes, koffie en lekkere zoetigheden.</p>
   </div>
   <div class="info-block">
     <h4>🍷 Bar middag</h4>
@@ -188,7 +188,7 @@ INFO_CONTENT.en = `
   <h2 class="card-title">🍞 Food & drinks</h2>
   <div class="info-block">
     <h4>☕ Bar morning</h4>
-    <p><strong>Mon–Sat: 8:30 – 11:00</strong><br>Sun: 10:00 – 11:00 (coffee & check-out)<br>Fresh bread, coffee and tasty sweets.</p>
+    <p><strong>Daily: 9:00 – 11:00</strong> (coffee & check-out)<br>Fresh bread, coffee and tasty sweets.</p>
   </div>
   <div class="info-block">
     <h4>🍷 Bar afternoon</h4>
@@ -340,7 +340,7 @@ INFO_CONTENT.pt = `
   <h2 class="card-title">🍞 Comida & bebidas</h2>
   <div class="info-block">
     <h4>☕ Bar manhã</h4>
-    <p><strong>Seg–sáb: 8:30 – 11:00</strong><br>Dom: 10:00 – 11:00 (café e check-out)<br>Pão fresco, café e doces.</p>
+    <p><strong>Todos os dias: 9:00 – 11:00</strong> (café e check-out)<br>Pão fresco, café e doces.</p>
   </div>
   <div class="info-block">
     <h4>🍷 Bar tarde</h4>
@@ -492,7 +492,7 @@ INFO_CONTENT.es = `
   <h2 class="card-title">🍞 Comida & bebidas</h2>
   <div class="info-block">
     <h4>☕ Bar mañana</h4>
-    <p><strong>Lun–sáb: 8:30 – 11:00</strong><br>Dom: 10:00 – 11:00 (café y check-out)<br>Pan fresco, café y dulces.</p>
+    <p><strong>Todos los días: 9:00 – 11:00</strong> (café y check-out)<br>Pan fresco, café y dulces.</p>
   </div>
   <div class="info-block">
     <h4>🍷 Bar tarde</h4>
@@ -644,7 +644,7 @@ INFO_CONTENT.de = `
   <h2 class="card-title">🍞 Essen & Trinken</h2>
   <div class="info-block">
     <h4>☕ Bar morgens</h4>
-    <p><strong>Mo–Sa: 8:30 – 11:00 Uhr</strong><br>So: 10:00 – 11:00 Uhr (Kaffee & Check-out)<br>Frische Brötchen, Kaffee und süße Leckereien.</p>
+    <p><strong>Täglich: 9:00 – 11:00 Uhr</strong> (Kaffee & Check-out)<br>Frische Brötchen, Kaffee und süße Leckereien.</p>
   </div>
   <div class="info-block">
     <h4>🍷 Bar nachmittags</h4>
@@ -796,7 +796,7 @@ INFO_CONTENT.fr = `
   <h2 class="card-title">🍞 Restauration</h2>
   <div class="info-block">
     <h4>☕ Bar matin</h4>
-    <p><strong>Lun–sam : 8h30 – 11h00</strong><br>Dim : 10h00 – 11h00 (café & check-out)<br>Pain frais, café et douceurs.</p>
+    <p><strong>Tous les jours : 9h00 – 11h00</strong> (café & check-out)<br>Pain frais, café et douceurs.</p>
   </div>
   <div class="info-block">
     <h4>🍷 Bar après-midi</h4>

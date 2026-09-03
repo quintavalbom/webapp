@@ -31,7 +31,7 @@ const TRANSLATIONS = {
 
     // Bread
     bread_title: '🥖 Broodjes bestellen',
-    bread_sub: 'Afhalen 8:30–11:30',
+    bread_sub: 'Afhalen 8:00–11:00',
     bread_deadline: '⏰ Bestellen kan tot <strong>19:00 uur</strong> voor de volgende ochtend.',
     bread_pickup_day: 'Afhaaldag',
     bread_total: 'Totaal',
@@ -157,7 +157,7 @@ const TRANSLATIONS = {
     nav_admin: 'Admin',
 
     bread_title: '🥖 Order bread',
-    bread_sub: 'Pick up 8:30–11:30',
+    bread_sub: 'Pick up 8:00–11:00',
     bread_deadline: '⏰ Order before <strong>19:00</strong> for the next morning.',
     bread_pickup_day: 'Pick-up day',
     bread_total: 'Total',
@@ -278,7 +278,7 @@ const TRANSLATIONS = {
     nav_admin: 'Gestão',
 
     bread_title: '🥖 Encomendar pão',
-    bread_sub: 'Levantamento 8:30–11:30',
+    bread_sub: 'Levantamento 8:00–11:00',
     bread_deadline: '⏰ Encomendas até às <strong>19:00</strong> para a manhã seguinte.',
     bread_pickup_day: 'Dia de levantamento',
     bread_total: 'Total',
@@ -399,7 +399,7 @@ const TRANSLATIONS = {
     nav_admin: 'Admin',
 
     bread_title: '🥖 Pedir pan',
-    bread_sub: 'Recogida 8:30–11:30',
+    bread_sub: 'Recogida 8:00–11:00',
     bread_deadline: '⏰ Pedir antes de las <strong>19:00</strong> para la mañana siguiente.',
     bread_pickup_day: 'Día de recogida',
     bread_total: 'Total',
@@ -520,7 +520,7 @@ const TRANSLATIONS = {
     nav_admin: 'Verwaltung',
 
     bread_title: '🥖 Brot bestellen',
-    bread_sub: 'Abholung 8:30–11:30',
+    bread_sub: 'Abholung 8:00–11:00',
     bread_deadline: '⏰ Bestellung bis <strong>19:00 Uhr</strong> für den nächsten Morgen.',
     bread_pickup_day: 'Abholtag',
     bread_total: 'Gesamt',
@@ -641,7 +641,7 @@ const TRANSLATIONS = {
     nav_admin: 'Admin',
 
     bread_title: '🥖 Commander du pain',
-    bread_sub: 'Retrait 8h30–11h30',
+    bread_sub: 'Retrait 8h00–11h00',
     bread_deadline: '⏰ Commander avant <strong>19h00</strong> pour le lendemain matin.',
     bread_pickup_day: 'Jour de retrait',
     bread_total: 'Total',

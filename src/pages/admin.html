@@ -466,10 +466,12 @@
         s2: '11:00 – 13:00',
         s3: '16:00 – 18:00',
         s4: '15:00 – 17:00',
-        s5: '17:00 – 19:00'
+        s5: '17:00 – 19:00',
+        s6: '09:00 – 10:30',
+        s7: '10:30 – 12:00'
       };
-      // Order by start time so older + newer slots both sort sensibly within a day
-      const slotOrder = { s1: 1, s2: 2, s4: 3, s3: 4, s5: 5 };
+      // Order by start time so old + new slots both sort sensibly within a day
+      const slotOrder = { s6: 1, s7: 2, s1: 3, s2: 4, s4: 5, s3: 6, s5: 7 };
 
       // Group by date
       const byDate = {};
@@ -488,7 +490,7 @@
         if (d === 'onbekend') return 3;
         const dayOfWeek = new Date(d).getDay();
         const morningCount = dayOfWeek === 0 ? 0 : 2; // No Sunday morning
-        const afternoonCount = d >= '2026-06-03' ? 2 : 1; // 2 from June 3, otherwise 1
+        const afternoonCount = 1;
         return morningCount + afternoonCount;
       }
 

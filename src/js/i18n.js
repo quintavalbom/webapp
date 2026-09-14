@@ -43,7 +43,7 @@ const TRANSLATIONS = {
 
     // Dinner
     dinner_title: '🍽️ Dinner night',
-    dinner_sub: 'Dinsdag & vrijdag · 19:00',
+    dinner_sub: 'Dinsdag · 19:00',
     dinner_min_info: 'ℹ️ Het diner gaat door bij minimaal <strong>10</strong> personen.',
     dinner_price_info: '💶 <strong>€ 25,-</strong> per volwassene · <strong>€ 15,-</strong> per kind. Voor-, hoofd- en nagerecht met koffie/thee/digestief.',
     dinner_avail_loading: '🪑 Beschikbaarheid wordt geladen...',
@@ -168,7 +168,7 @@ const TRANSLATIONS = {
     bread_placed: 'Order placed! 🎉',
 
     dinner_title: '🍽️ Dinner night',
-    dinner_sub: 'Tuesday & Friday · 19:00',
+    dinner_sub: 'Tuesday · 19:00',
     dinner_min_info: 'ℹ️ Dinner takes place with a minimum of <strong>10</strong> people.',
     dinner_price_info: '💶 <strong>€ 25.00</strong> per adult · <strong>€ 15.00</strong> per child. Starter, main course and dessert with coffee/tea/digestif.',
     dinner_avail_loading: '🪑 Loading availability...',
@@ -289,7 +289,7 @@ const TRANSLATIONS = {
     bread_placed: 'Encomenda feita! 🎉',
 
     dinner_title: '🍽️ Noite de jantar',
-    dinner_sub: 'Terça & sexta · 19:00',
+    dinner_sub: 'Terça · 19:00',
     dinner_min_info: 'ℹ️ O jantar realiza-se com um mínimo de <strong>10</strong> pessoas.',
     dinner_price_info: '💶 <strong>€ 25,00</strong> por adulto · <strong>€ 15,00</strong> por criança. Entrada, prato principal e sobremesa com café/chá/digestivo.',
     dinner_avail_loading: '🪑 A carregar disponibilidade...',
@@ -410,7 +410,7 @@ const TRANSLATIONS = {
     bread_placed: '¡Pedido realizado! 🎉',
 
     dinner_title: '🍽️ Cena especial',
-    dinner_sub: 'Martes & viernes · 19:00',
+    dinner_sub: 'Martes · 19:00',
     dinner_min_info: 'ℹ️ La cena se realiza con un mínimo de <strong>10</strong> personas.',
     dinner_price_info: '💶 <strong>€ 25,00</strong> por adulto · <strong>€ 15,00</strong> por niño. Entrante, plato principal y postre con café/té/digestivo.',
     dinner_avail_loading: '🪑 Cargando disponibilidad...',
@@ -531,7 +531,7 @@ const TRANSLATIONS = {
     bread_placed: 'Bestellung aufgegeben! 🎉',
 
     dinner_title: '🍽️ Dinner Night',
-    dinner_sub: 'Dienstag & Freitag · 19:00',
+    dinner_sub: 'Dienstag · 19:00',
     dinner_min_info: 'ℹ️ Das Abendessen findet ab <strong>10</strong> Personen statt.',
     dinner_price_info: '💶 <strong>€ 25,00</strong> pro Erwachsener · <strong>€ 15,00</strong> pro Kind. Vorspeise, Hauptgang und Nachtisch mit Kaffee/Tee/Digestif.',
     dinner_avail_loading: '🪑 Verfügbarkeit wird geladen...',
@@ -652,7 +652,7 @@ const TRANSLATIONS = {
     bread_placed: 'Commande passée ! 🎉',
 
     dinner_title: '🍽️ Soirée dîner',
-    dinner_sub: 'Mardi & vendredi · 19h00',
+    dinner_sub: 'Mardi · 19h00',
     dinner_min_info: 'ℹ️ Le dîner a lieu à partir de <strong>10</strong> personnes.',
     dinner_price_info: '💶 <strong>25,00 €</strong> par adulte · <strong>15,00 €</strong> par enfant. Entrée, plat principal et dessert avec café/thé/digestif.',
     dinner_avail_loading: '🪑 Chargement de la disponibilité...',

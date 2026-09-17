@@ -232,6 +232,7 @@
 
     // Extra dinner dates outside the normal Tue/Fri schedule.
     // The message is shown as an always-visible notice.
+    // Set same_day_ok: true to allow sign-up on the day itself (bypasses 19:00 deadline).
     const DINNER_EXTRA_DATES = {
       '2026-08-24': {
         nl: '🥘 Op maandag 24 augustus: <strong>Portugese tapas</strong> — buffet met voor-, hoofd- en nagerecht.',
@@ -240,6 +241,15 @@
         es: '🥘 El lunes 24 de agosto: <strong>Tapas portuguesas</strong> — bufé con entrante, plato principal y postre.',
         de: '🥘 Am Montag, 24. August: <strong>Portugiesische Tapas</strong> — Buffet mit Vorspeise, Hauptgang und Nachtisch.',
         fr: '🥘 Le lundi 24 août : <strong>Tapas portugaises</strong> — buffet avec entrée, plat principal et dessert.'
+      },
+      '2026-09-18': {
+        same_day_ok: true,
+        nl: '🍷 Op vrijdag 18 september: <strong>Wijnproeverij</strong> — 4 wijnen met hapjes voor € 25 per persoon. Aanmelden kan ook nog op de dag zelf.',
+        en: '🍷 On Friday 18 September: <strong>Wine tasting</strong> — 4 wines with snacks for € 25 per person. Sign-up possible on the day itself too.',
+        pt: '🍷 Na sexta-feira 18 de setembro: <strong>Prova de vinhos</strong> — 4 vinhos com petiscos por € 25 por pessoa. Inscrição possível também no próprio dia.',
+        es: '🍷 El viernes 18 de septiembre: <strong>Cata de vinos</strong> — 4 vinos con tapas por € 25 por persona. Inscripción posible también el mismo día.',
+        de: '🍷 Am Freitag, 18. September: <strong>Weinverkostung</strong> — 4 Weine mit Häppchen für € 25 pro Person. Anmeldung auch am Tag selbst möglich.',
+        fr: '🍷 Le vendredi 18 septembre : <strong>Dégustation de vins</strong> — 4 vins avec amuse-bouches pour 25 € par personne. Inscription possible même le jour même.'
       }
     };
 
@@ -252,8 +262,30 @@
         es: '🍽️ El 14 de agosto precio especial: <strong>€ 15,00</strong> plato principal por adulto · <strong>€ 10,00</strong> por niño.',
         de: '🍽️ Am 14. August Sonderpreis: <strong>€ 15,00</strong> Hauptgang pro Erwachsener · <strong>€ 10,00</strong> pro Kind.',
         fr: '🍽️ Le 14 août prix spécial : <strong>15,00 €</strong> plat principal par adulte · <strong>10,00 €</strong> par enfant.'
+      },
+      '2026-09-18': {
+        nl: '🍷 Wijnproeverij 18 september: <strong>€ 25,-</strong> per persoon — 4 wijnen met hapjes.',
+        en: '🍷 Wine tasting 18 September: <strong>€ 25.00</strong> per person — 4 wines with snacks.',
+        pt: '🍷 Prova de vinhos 18 de setembro: <strong>€ 25,00</strong> por pessoa — 4 vinhos com petiscos.',
+        es: '🍷 Cata de vinos 18 de septiembre: <strong>€ 25,00</strong> por persona — 4 vinos con tapas.',
+        de: '🍷 Weinverkostung 18. September: <strong>€ 25,00</strong> pro Person — 4 Weine mit Häppchen.',
+        fr: '🍷 Dégustation de vins 18 septembre : <strong>25,00 €</strong> par personne — 4 vins avec amuse-bouches.'
       }
     };
+
+    // Returns true when the eventDate can still be booked/edited.
+    // Wraps isWithinDeadline but bypasses it for extra dates flagged same_day_ok.
+    function isDinnerBookable(eventDate) {
+      const extra = DINNER_EXTRA_DATES[eventDate];
+      if (extra && extra.same_day_ok) {
+        const target = new Date(eventDate);
+        target.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return target >= today;
+      }
+      return isWithinDeadline(eventDate);
+    }
     let featureFlags = { bar: true, trips: true };
 
     document.getElementById('user-info').textContent = `Plek ${user.plek} · ${user.name}`;
@@ -462,7 +494,7 @@
       Object.keys(DINNER_EXTRA_DATES).forEach(dateStr => {
         if (dateStr < todayStr) return;
         if (dateStr > lastRegular && dinnerDates.length >= 6) return;
-        if (!isWithinDeadline(dateStr) && dateStr !== todayStr) return;
+        if (!isDinnerBookable(dateStr) && dateStr !== todayStr) return;
         if (!dinnerDates.includes(dateStr)) dinnerDates.push(dateStr);
       });
       dinnerDates.sort();
@@ -690,7 +722,7 @@
         showError('dinner-error', t('dinner_select_date'));
         return;
       }
-      if (!isWithinDeadline(eventDate)) {
+      if (!isDinnerBookable(eventDate)) {
         showError('dinner-error', t('dinner_deadline_passed'));
         return;
       }
@@ -988,7 +1020,7 @@
         const created = new Date(order.created_at);
         return (Date.now() - created.getTime()) < 3600000;
       }
-      return isWithinDeadline(order.order_date);
+      return isDinnerBookable(order.order_date);
     }
 
     function formatMyDate(dateStr) {

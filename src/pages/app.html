@@ -198,6 +198,9 @@
     let barItemsList = [];
     let dinnerCountsByDate = {};
     const DINNER_MAX = 16;
+    // Set to false to leave the dinner-date dropdown empty (no dates available).
+    // Blackout/extra-date notices still show. Toggle to true to restart reservations.
+    const DINNER_ENABLED = false;
 
     // Dates when the dinner is cancelled (e.g. village festivities).
     // Value = translation object keyed by language code.
@@ -474,37 +477,39 @@
         count++;
       }
 
-      // Dinner dates (Tue + any extra dates). Exclude "tomorrow" if past 19:00 and blackout dates.
+      // Dinner dates (Tue + any extra dates). Only build when reservations are enabled.
       const dinnerSelect = document.getElementById('dinner-date');
       const todayStr = today.toISOString().split('T')[0];
       const dinnerDates = [];
-      count = 0;
-      for (let i = 1; count < 6; i++) {
-        const d = new Date(today);
-        d.setDate(d.getDate() + i);
-        if (d.getDay() !== 2) continue;
-        if (i === 1 && pastDeadline) continue;
-        const dateStr = d.toISOString().split('T')[0];
-        if (DINNER_BLACKOUT[dateStr]) continue;
-        dinnerDates.push(dateStr);
-        count++;
+      if (DINNER_ENABLED) {
+        count = 0;
+        for (let i = 1; count < 6; i++) {
+          const d = new Date(today);
+          d.setDate(d.getDate() + i);
+          if (d.getDay() !== 2) continue;
+          if (i === 1 && pastDeadline) continue;
+          const dateStr = d.toISOString().split('T')[0];
+          if (DINNER_BLACKOUT[dateStr]) continue;
+          dinnerDates.push(dateStr);
+          count++;
+        }
+        // Add extra dates within the same window
+        const lastRegular = dinnerDates.length ? dinnerDates[dinnerDates.length - 1] : todayStr;
+        Object.keys(DINNER_EXTRA_DATES).forEach(dateStr => {
+          if (dateStr < todayStr) return;
+          if (dateStr > lastRegular && dinnerDates.length >= 6) return;
+          if (!isDinnerBookable(dateStr) && dateStr !== todayStr) return;
+          if (!dinnerDates.includes(dateStr)) dinnerDates.push(dateStr);
+        });
+        dinnerDates.sort();
+        dinnerDates.forEach(dateStr => {
+          const d = new Date(dateStr);
+          const option = document.createElement('option');
+          option.value = dateStr;
+          option.textContent = d.toLocaleDateString(langCode(), { weekday: 'short', day: 'numeric', month: 'short' });
+          dinnerSelect.appendChild(option);
+        });
       }
-      // Add extra dates within the same window
-      const lastRegular = dinnerDates.length ? dinnerDates[dinnerDates.length - 1] : todayStr;
-      Object.keys(DINNER_EXTRA_DATES).forEach(dateStr => {
-        if (dateStr < todayStr) return;
-        if (dateStr > lastRegular && dinnerDates.length >= 6) return;
-        if (!isDinnerBookable(dateStr) && dateStr !== todayStr) return;
-        if (!dinnerDates.includes(dateStr)) dinnerDates.push(dateStr);
-      });
-      dinnerDates.sort();
-      dinnerDates.forEach(dateStr => {
-        const d = new Date(dateStr);
-        const option = document.createElement('option');
-        option.value = dateStr;
-        option.textContent = d.toLocaleDateString(langCode(), { weekday: 'short', day: 'numeric', month: 'short' });
-        dinnerSelect.appendChild(option);
-      });
       renderDinnerBlackoutNotices();
 
       // Wash days (today + next 7 days)
